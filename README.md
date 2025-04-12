@@ -42,7 +42,7 @@
 │   ├── utils/                 # 工具样式
 │   │   └── responsive.css     # 响应式布局样式
 │   ├── summary/               # CSS分析和复用
-│   │   ├── css_summary.md     # 完整CSS类总结
+│   │   ├── css_summary.md     # CSS类总结（精简版）
 │   │   ├── css_reuse.md       # CSS复用指南
 │   │   └── utility.css        # 提取的工具类库
 │   └── transformer.css        # 主样式文件
@@ -59,9 +59,16 @@
 
 为了提高开发效率和保持样式一致性，项目提供了CSS类总结和复用指南：
 
-- `css/summary/css_summary.md`: 完整的CSS类总结，包含所有类及其属性
+- `css/summary/css_summary.md`: CSS类精简总结，按文件分类和功能分组，特别标注了复用频率高的类
 - `css/summary/css_reuse.md`: 分类整理的CSS复用指南，提供常用组合示例
 - `css/summary/utility.css`: 从项目中提取的可复用CSS类库
+
+CSS总结主要包含以下部分：
+1. 总体统计数据
+2. 按文件分类的类列表
+3. 多文件复用类统计
+4. 按功能的类分组
+5. 使用建议
 
 在开发新组件时，建议首先查阅这些文档，尽量复用已有的CSS类。
 

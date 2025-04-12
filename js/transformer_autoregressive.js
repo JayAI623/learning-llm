@@ -133,6 +133,16 @@ function updateMatrixDisplay(matrix, elementId, matrixType) {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'matrix-row';
         
+        // 如果是embedding矩阵，添加token标签
+        if (matrixType === 'Embedding') {
+            const tokenLabel = document.createElement('div');
+            tokenLabel.className = 'token-label';
+            tokenLabel.style.width = '30px';
+            tokenLabel.style.marginRight = '10px';
+            tokenLabel.textContent = getCurrentSequence()[i];
+            rowDiv.appendChild(tokenLabel);
+        }
+        
         row.forEach((value, j) => {
             const cell = document.createElement('div');
             cell.className = 'matrix-cell';
@@ -161,7 +171,7 @@ function updateMatrixDisplay(matrix, elementId, matrixType) {
 }
 
 // 更新注意力热力图（添加动画）
-function updateAttentionHeatmap(weights) {
+function updateAttentionHeatmap(weights, qk, scaledQK, maskedQK) {
     const container = document.getElementById('attentionScores');
     const currentSeq = getCurrentSequence();
     
@@ -213,10 +223,23 @@ function updateAttentionHeatmap(weights) {
             
             if (j > i) {
                 td.classList.add('masked-cell');
+                // 添加计算过程的tooltip
+                td.title = `
+QK^T: ${qk[i][j].toFixed(2)}
+Scale: ${scaledQK[i][j].toFixed(2)}
+Mask: ${maskedQK[i][j].toFixed(2)}
+Attention: Masked
+                `.trim();
             } else {
                 td.style.backgroundColor = `rgba(0, 122, 255, ${weight})`;
                 td.setAttribute('data-value', weight.toFixed(2));
-                td.title = `从 ${currentSeq[i]} 到 ${currentSeq[j]}: ${weight.toFixed(2)}`;
+                // 添加计算过程的tooltip
+                td.title = `
+QK^T: ${qk[i][j].toFixed(2)}
+Scale: ${scaledQK[i][j].toFixed(2)}
+Mask: ${maskedQK[i][j].toFixed(2)}
+Attention: ${weight.toFixed(2)}
+                `.trim();
             }
             
             tr.appendChild(td);
@@ -226,6 +249,132 @@ function updateAttentionHeatmap(weights) {
     });
     table.appendChild(tbody);
     container.appendChild(table);
+}
+
+// 更新注意力加权值显示
+function updateWeightedValues(attentionWeights, V) {
+    // 获取需要显示的容器
+    const attentionContainer = document.getElementById('attentionMatrixForMultiply');
+    const vContainer = document.getElementById('vMatrixForMultiply');
+    const outputContainer = document.getElementById('weightedValues');
+    
+    if (!attentionContainer || !vContainer || !outputContainer) return;
+    
+    // 清空容器
+    attentionContainer.innerHTML = '';
+    vContainer.innerHTML = '';
+    outputContainer.innerHTML = '';
+    
+    // 计算 Z = Attention × V
+    const Z = [];
+    for (let i = 0; i < attentionWeights.length; i++) {
+        const newRow = [];
+        for (let j = 0; j < V[0].length; j++) {
+            let sum = 0;
+            for (let k = 0; k < V.length; k++) {
+                sum += attentionWeights[i][k] * V[k][j];
+            }
+            newRow.push(parseFloat(sum.toFixed(2)));
+        }
+        Z.push(newRow);
+    }
+    
+    // 获取当前序列
+    const currentSeq = getCurrentSequence();
+    
+    // 显示注意力矩阵
+    attentionWeights.forEach((row, i) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        
+        // 添加行标签（token）
+        const tokenLabel = document.createElement('div');
+        tokenLabel.className = 'token-label';
+        tokenLabel.style.width = '30px';
+        tokenLabel.style.marginRight = '10px';
+        tokenLabel.textContent = currentSeq[i];
+        rowDiv.appendChild(tokenLabel);
+        
+        row.forEach((value, j) => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            // 添加蓝色渐变背景
+            cell.style.backgroundColor = `rgba(0, 122, 255, ${value})`;
+            cell.textContent = value.toFixed(2);
+            
+            // Tooltip显示注意力关系
+            cell.title = `${currentSeq[i]} → ${currentSeq[j]}: ${value.toFixed(2)}`;
+            
+            rowDiv.appendChild(cell);
+        });
+        
+        attentionContainer.appendChild(rowDiv);
+    });
+    
+    // 显示V矩阵
+    V.forEach((row, i) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        
+        // 添加行标签（token）
+        const tokenLabel = document.createElement('div');
+        tokenLabel.className = 'token-label';
+        tokenLabel.style.width = '30px';
+        tokenLabel.style.marginRight = '10px';
+        tokenLabel.textContent = currentSeq[i];
+        rowDiv.appendChild(tokenLabel);
+        
+        row.forEach((value, j) => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            // 添加渐变背景色
+            const intensity = Math.abs(value);
+            const hue = value >= 0 ? 200 : 0;
+            cell.style.backgroundColor = `hsla(${hue}, 80%, 50%, ${intensity * 0.5})`;
+            cell.textContent = value.toFixed(2);
+            
+            // Tooltip显示维度信息
+            cell.title = `V[${i}][${j}]: ${value.toFixed(2)}`;
+            
+            rowDiv.appendChild(cell);
+        });
+        
+        vContainer.appendChild(rowDiv);
+    });
+    
+    // 显示输出矩阵Z
+    Z.forEach((row, i) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        
+        // 添加行标签（token）
+        const tokenLabel = document.createElement('div');
+        tokenLabel.className = 'token-label';
+        tokenLabel.style.width = '30px';
+        tokenLabel.style.marginRight = '10px';
+        tokenLabel.textContent = currentSeq[i];
+        rowDiv.appendChild(tokenLabel);
+        
+        row.forEach((value, j) => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            // 添加渐变背景色
+            const intensity = Math.abs(value) / 5; // 归一化
+            const hue = value >= 0 ? 200 : 0;
+            cell.style.backgroundColor = `hsla(${hue}, 80%, 50%, ${intensity})`;
+            cell.textContent = value.toFixed(2);
+            
+            // Tooltip显示计算过程
+            cell.title = `Z[${i}][${j}] = Σ(Attention[${i}][k] * V[k][${j}])`;
+            
+            rowDiv.appendChild(cell);
+        });
+        
+        outputContainer.appendChild(rowDiv);
+    });
 }
 
 // 更新序列显示
@@ -261,6 +410,55 @@ function updateSequenceDisplay() {
     });
 }
 
+// 显示中间计算矩阵
+function updateIntermediateMatrix(matrix, elementId, isMasked = false) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 创建表格结构
+    const currentSeq = getCurrentSequence();
+    matrix.forEach((row, i) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        
+        row.forEach((value, j) => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            if (isMasked && j > i) {
+                cell.classList.add('masked-value');
+                cell.textContent = '-∞';
+            } else {
+                // 添加渐变背景色
+                const intensity = Math.abs(value);
+                // 对于softmax结果使用不同的颜色方案
+                if (elementId === 'softmaxMatrix') {
+                    // 蓝色渐变，深度根据值
+                    cell.style.backgroundColor = `rgba(0, 122, 255, ${value})`;
+                } else {
+                    const hue = value >= 0 ? 200 : 0;
+                    cell.style.backgroundColor = `hsla(${hue}, 80%, 50%, ${intensity * 0.3})`;
+                }
+                cell.textContent = value.toFixed(2);
+            }
+            
+            // 添加token标签作为tooltip
+            if (elementId === 'softmaxMatrix') {
+                cell.title = `${currentSeq[i]} → ${currentSeq[j]}: 注意力分数 = ${value.toFixed(4)}`;
+            } else {
+                cell.title = `${currentSeq[i]} → ${currentSeq[j]}: ${value.toFixed(2)}`;
+            }
+            
+            rowDiv.appendChild(cell);
+        });
+        
+        container.appendChild(rowDiv);
+    });
+}
+
 // 更新可视化
 function updateVisualization() {
     const currentSeq = getCurrentSequence();
@@ -268,6 +466,9 @@ function updateVisualization() {
 
     // 获取当前序列的词嵌入
     const embeddings = getEmbeddings(currentSeq);
+    
+    // 更新词嵌入矩阵显示
+    updateMatrixDisplay(embeddings, 'embeddingMatrix', 'Embedding');
     
     // 生成QKV矩阵
     const { Q, K, V } = generateQKVMatrices(embeddings);
@@ -289,13 +490,25 @@ function updateVisualization() {
     );
 
     // 应用 mask 并计算 softmax
-    const attentionWeights = scaledQK.map((row, i) => {
-        const maskedRow = row.map((x, j) => j > i ? -1e9 : x);
-        return softmax(maskedRow);
+    const maskedQK = scaledQK.map((row, i) => 
+        row.map((x, j) => j > i ? -1e9 : x)
+    );
+    
+    const attentionWeights = maskedQK.map((row, i) => {
+        return softmax(row);
     });
 
-    // 更新注意力热力图
-    updateAttentionHeatmap(attentionWeights);
+    // 更新中间计算矩阵
+    updateIntermediateMatrix(QK, 'qkMatrix');
+    updateIntermediateMatrix(scaledQK, 'scaledQKMatrix');
+    updateIntermediateMatrix(maskedQK, 'maskedQKMatrix', true);
+    updateIntermediateMatrix(attentionWeights, 'softmaxMatrix');
+
+    // 更新注意力热力图，传入所有中间计算结果
+    updateAttentionHeatmap(attentionWeights, QK, scaledQK, maskedQK);
+    
+    // 更新注意力加权值
+    updateWeightedValues(attentionWeights, V);
 
     // 更新序列显示
     updateSequenceDisplay();
@@ -352,7 +565,14 @@ document.addEventListener('DOMContentLoaded', () => {
         'qMatrix',
         'kMatrix',
         'vMatrix',
-        'attentionScores'
+        'attentionScores',
+        'qkMatrix',
+        'scaledQKMatrix',
+        'maskedQKMatrix',
+        'softmaxMatrix',
+        'weightedValues',
+        'attentionMatrixForMultiply',
+        'vMatrixForMultiply'
     ];
     
     const missingElements = requiredElements.filter(id => !document.getElementById(id));

@@ -588,5 +588,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('prevStep').addEventListener('click', previousStep);
     document.getElementById('nextStep').addEventListener('click', nextStep);
     
+    // 添加页面滚动检测功能
+    const stepControls = document.querySelector('.step-controls');
+    const header = document.querySelector('.header');
+    
+    if (stepControls && header) {
+        const headerBottom = header.offsetTop + header.offsetHeight;
+        
+        // 滚动时检测位置，添加或移除scrolled类
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > headerBottom) {
+                stepControls.classList.add('scrolled');
+            } else {
+                stepControls.classList.remove('scrolled');
+            }
+        });
+    }
+    
+    // 初始检查
+    window.dispatchEvent(new Event('scroll'));
+    
     console.log('Initialization complete');
 }); 

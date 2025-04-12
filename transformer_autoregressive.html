@@ -14,12 +14,14 @@
         </div>
 
         <div class="step-controls">
-            <button id="prevStep" onclick="previousStep()">上一步</button>
             <div class="step-indicator">
                 <span>时间步：</span><span id="currentStep">1</span>
                 <span>序列长度：</span><span id="sequenceLength">1</span>
             </div>
-            <button id="nextStep" onclick="nextStep()">下一步</button>
+            <div class="buttons-container">
+                <button id="prevStep" onclick="previousStep()">上一步</button>
+                <button id="nextStep" onclick="nextStep()">下一步</button>
+            </div>
         </div>
 
         <div class="sequence-section">

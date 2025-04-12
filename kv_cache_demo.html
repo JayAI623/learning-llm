@@ -23,19 +23,19 @@
                 <h1>Transformer KV缓存优化原理演示</h1>
             </div>
             <div class="buttons-container">
-                <button id="prevStep">上一步</button>
-                <button id="nextStep">下一步</button>
+                <button id="prevStep" class="btn">上一步</button>
+                <button id="nextStep" class="btn">下一步</button>
             </div>
         </div>
 
         <!-- 解释区域 -->
-        <div class="step-explanation">
+        <div class="component-section step-explanation">
             <div class="current-step-info" id="stepInfo">步骤 1/5</div>
             <h3>什么是KV缓存？</h3>
             <p>KV缓存(Key-Value缓存)是一种优化技术，用于减少Transformer模型在自回归生成过程中的计算量。在生成每个新token时，不需要重新计算已生成token的K(Key)和V(Value)矩阵，而是复用之前的计算结果。</p>
         </div>
 
-        <!-- 序列展示 -->
+        <!-- 序列展示 - 重用sequence-section的样式 -->
         <div id="sequence-container" class="component-section">
             <h2 class="section-title">Token序列</h2>
             <div class="sequence-display" id="tokenSequence">
@@ -50,26 +50,26 @@
         <!-- KV缓存对比展示 -->
         <div class="grid-layout-2">
             <!-- 左侧：不使用KV缓存 -->
-            <div class="component-section">
+            <div class="component-section matrix-section">
                 <h2 class="section-title">不使用KV缓存</h2>
                 <div class="calculation-container">
                     <h3>每次都需重新计算</h3>
                     <div id="without-cache-matrices" class="matrices-grid">
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">Q<span class="matrix-dimensions">(1×d)</span></div>
+                                <div class="matrix-label">Q <span class="matrix-dimensions">(1×d)</span></div>
                                 <div id="queryMatrix" class="matrix"></div>
                             </div>
                         </div>
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">K<span class="matrix-dimensions">(t×d)</span></div>
+                                <div class="matrix-label">K <span class="matrix-dimensions">(t×d)</span></div>
                                 <div id="keyMatrixFull" class="matrix"></div>
                             </div>
                         </div>
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">V<span class="matrix-dimensions">(t×d)</span></div>
+                                <div class="matrix-label">V <span class="matrix-dimensions">(t×d)</span></div>
                                 <div id="valueMatrixFull" class="matrix"></div>
                             </div>
                         </div>
@@ -83,34 +83,34 @@
             </div>
 
             <!-- 右侧：使用KV缓存 -->
-            <div class="component-section">
+            <div class="component-section matrix-section">
                 <h2 class="section-title">使用KV缓存</h2>
                 <div class="calculation-container">
                     <h3>只计算新token，复用缓存</h3>
                     <div id="with-cache-matrices" class="matrices-grid">
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">Q<span class="matrix-dimensions">(1×d)</span></div>
+                                <div class="matrix-label">Q <span class="matrix-dimensions">(1×d)</span></div>
                                 <div id="queryCacheMatrix" class="matrix"></div>
                             </div>
                         </div>
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">K缓存<span class="matrix-dimensions">((t-1)×d)</span></div>
+                                <div class="matrix-label">K缓存 <span class="matrix-dimensions">((t-1)×d)</span></div>
                                 <div id="keyCacheMatrix" class="matrix"></div>
                             </div>
                             <div class="matrix-group">
-                                <div class="matrix-label">新K<span class="matrix-dimensions">(1×d)</span></div>
+                                <div class="matrix-label">新K <span class="matrix-dimensions">(1×d)</span></div>
                                 <div id="keyNewMatrix" class="matrix"></div>
                             </div>
                         </div>
                         <div class="matrix-container">
                             <div class="matrix-group">
-                                <div class="matrix-label">V缓存<span class="matrix-dimensions">((t-1)×d)</span></div>
+                                <div class="matrix-label">V缓存 <span class="matrix-dimensions">((t-1)×d)</span></div>
                                 <div id="valueCacheMatrix" class="matrix"></div>
                             </div>
                             <div class="matrix-group">
-                                <div class="matrix-label">新V<span class="matrix-dimensions">(1×d)</span></div>
+                                <div class="matrix-label">新V <span class="matrix-dimensions">(1×d)</span></div>
                                 <div id="valueNewMatrix" class="matrix"></div>
                             </div>
                         </div>
@@ -124,14 +124,14 @@
             </div>
         </div>
 
-        <!-- 矩阵乘法区域 -->
+        <!-- 矩阵乘法区域 - 使用现有组件 -->
         <div id="matrix-multiplication-container"></div>
         
-        <!-- 注意力矩阵展示 -->
+        <!-- 注意力矩阵展示 - 使用现有组件 -->
         <div id="attention-matrices-container"></div>
 
         <!-- 计算效率比较 -->
-        <div class="component-section">
+        <div class="component-section matrix-multiplication-section">
             <h2 class="section-title">计算效率比较</h2>
             <div class="formula-result-layout">
                 <div class="left-formula">

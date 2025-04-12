@@ -42,9 +42,11 @@
 
         .nav-buttons {
             display: flex;
+            flex-direction: column;
             gap: 20px;
             justify-content: center;
             margin-top: 40px;
+            align-items: center;
         }
 
         .nav-button {
@@ -60,6 +62,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 300px;
+            justify-content: center;
         }
 
         .nav-button:hover {
@@ -86,6 +90,9 @@
         <div class="nav-buttons">
             <a href="transformer_autoregressive.html" class="nav-button">
                 Transformer自回归生成过程
+            </a>
+            <a href="kv_cache_demo.html" class="nav-button">
+                KV缓存优化原理演示
             </a>
         </div>
     </div>

@@ -1,0 +1,31 @@
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .step-controls {
+        flex-direction: column;
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .step-controls.scrolled {
+        padding-top: 12px;
+    }
+    
+    .step-indicator {
+        font-size: 14px;
+        width: 100%;
+        justify-content: center;
+        order: -1;
+    }
+    
+    .step-controls button {
+        padding: 6px 14px;
+        font-size: 14px;
+    }
+    
+    /* 确保按钮在一行 */
+    .step-controls .buttons-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+} 

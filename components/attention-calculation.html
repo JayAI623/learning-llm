@@ -1,0 +1,31 @@
+<div class="attention-calculation">
+    <div class="calculation-flow">
+        <div class="flow-step">
+            <div class="formula">
+                QK<sup>T</sup> = Q × K<sup>T</sup>
+                <div class="arrow">↓</div>
+            </div>
+        </div>
+        <div class="flow-step">
+            <div class="formula">
+                Scale = QK<sup>T</sup> / √d<sub>k</sub>
+                <div class="arrow">↓</div>
+            </div>
+        </div>
+        <div class="flow-step">
+            <div class="formula">
+                Mask(QK<sup>T</sup>)
+                <div class="arrow">↓</div>
+            </div>
+        </div>
+        <div class="flow-step">
+            <div class="formula">
+                Attention = softmax(Scale)
+            </div>
+        </div>
+    </div>
+    <div class="attention-scores">
+        <h3>注意力分数</h3>
+        <div id="attentionScores" class="attention-scores-matrix"></div>
+    </div>
+</div> 

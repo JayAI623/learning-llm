@@ -1,0 +1,12 @@
+/* 
+ * 全局CSS变量定义
+ * 用于保持整个应用程序的样式一致性
+ */
+
+:root {
+    --primary-color: #007AFF;
+    --background-color: #F5F5F7;
+    --text-color: #1D1D1F;
+    --matrix-bg: #E3F2FD;
+    --highlight-color: #FF9500;
+} 

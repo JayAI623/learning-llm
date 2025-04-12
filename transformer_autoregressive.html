@@ -4,171 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transformer 自回归计算过程</title>
-    <link rel="stylesheet" href="css/transformer_autoregressive.css">
+    <link rel="stylesheet" href="css/transformer.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <!-- 顶部独立的返回按钮 -->
+        <div class="back-button-container">
             <a href="index.html" class="back-button">← 返回</a>
-            <h1>Transformer 自回归计算过程可视化</h1>
         </div>
-
+        
+        <!-- 步骤控制与标题融合在一起 -->
         <div class="step-controls">
             <div class="step-indicator">
                 <span>时间步：</span><span id="currentStep">1</span>
                 <span>序列长度：</span><span id="sequenceLength">1</span>
             </div>
+            <div class="header">
+                <h1>Transformer 自回归计算过程可视化</h1>
+            </div>
             <div class="buttons-container">
-                <button id="prevStep" onclick="previousStep()">上一步</button>
-                <button id="nextStep" onclick="nextStep()">下一步</button>
+                <button id="prevStep">上一步</button>
+                <button id="nextStep">下一步</button>
             </div>
         </div>
 
-        <div class="sequence-section">
-            <h2>输入序列</h2>
-            <div id="inputSequence" class="sequence-display"></div>
-        </div>
+        <!-- 各个组件的容器 -->
+        <div id="sequence-container"></div>
+        <div id="matrix-container"></div>
+        <div id="attention-matrices-container"></div>
+        <div id="attention-calculation-container"></div>
+        <div id="matrix-multiplication-container"></div>
 
-        <div class="matrix-section">
-            <div class="matrix-container">
-                <h3>输入表示</h3>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        词嵌入 E <span id="EmbeddingMatrixSize" class="matrix-dimensions">(t×4)</span>
-                    </div>
-                    <div id="embeddingMatrix" class="matrix"></div>
-                </div>
-            </div>
-
-            <div class="matrix-container">
-                <h3>参数矩阵</h3>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        W_Q <span id="W_QMatrixSize" class="matrix-dimensions">(4×4)</span>
-                    </div>
-                    <div id="wqMatrix" class="matrix"></div>
-                </div>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        W_K <span id="W_KMatrixSize" class="matrix-dimensions">(4×4)</span>
-                    </div>
-                    <div id="wkMatrix" class="matrix"></div>
-                </div>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        W_V <span id="W_VMatrixSize" class="matrix-dimensions">(4×4)</span>
-                    </div>
-                    <div id="wvMatrix" class="matrix"></div>
-                </div>
-            </div>
-            
-            <div class="matrix-container">
-                <h3>QKV矩阵</h3>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        查询矩阵 Q <span id="QMatrixSize" class="matrix-dimensions">(1×4)</span>
-                    </div>
-                    <div id="qMatrix" class="matrix"></div>
-                </div>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        键矩阵 K <span id="KMatrixSize" class="matrix-dimensions">(1×4)</span>
-                    </div>
-                    <div id="kMatrix" class="matrix"></div>
-                </div>
-                <div class="matrix-group">
-                    <div class="matrix-label">
-                        值矩阵 V <span id="VMatrixSize" class="matrix-dimensions">(1×4)</span>
-                    </div>
-                    <div id="vMatrix" class="matrix"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="attention-matrices">
-            <h3 class="section-title">Attention score计算过程</h3>
-            <div class="attention-matrices-grid">
-                <div class="matrix-container">
-                    <h3>QK<sup>T</sup> 矩阵</h3>
-                    <div id="qkMatrix" class="matrix ultra-compact-matrix"></div>
-                </div>
-                <div class="matrix-container">
-                    <h3>缩放后</h3>
-                    <div id="scaledQKMatrix" class="matrix ultra-compact-matrix"></div>
-                </div>
-                <div class="matrix-container">
-                    <h3>掩码后</h3>
-                    <div id="maskedQKMatrix" class="matrix ultra-compact-matrix"></div>
-                </div>
-                <div class="matrix-container">
-                    <h3>Softmax</h3>
-                    <div id="softmaxMatrix" class="matrix ultra-compact-matrix"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="attention-calculation">
-            <div class="calculation-flow">
-                <div class="flow-step">
-                    <div class="formula">
-                        QK<sup>T</sup> = Q × K<sup>T</sup>
-                        <div class="arrow">↓</div>
-                    </div>
-                </div>
-                <div class="flow-step">
-                    <div class="formula">
-                        Scale = QK<sup>T</sup> / √d<sub>k</sub>
-                        <div class="arrow">↓</div>
-                    </div>
-                </div>
-                <div class="flow-step">
-                    <div class="formula">
-                        Mask(QK<sup>T</sup>)
-                        <div class="arrow">↓</div>
-                    </div>
-                </div>
-                <div class="flow-step">
-                    <div class="formula">
-                        Attention = softmax(Scale)
-                    </div>
-                </div>
-            </div>
-            <div class="attention-scores">
-                <h3>注意力分数</h3>
-                <div id="attentionScores" class="attention-scores-matrix"></div>
-            </div>
-        </div>
-
-        <!-- 注意力加权计算部分 - 新布局 -->
-        <div class="matrix-multiplication-section">
-            <h3 class="section-title">注意力加权计算过程</h3>
-            <div class="matrix-multiplication-container">
-                <div class="matrix-group">
-                    <h3>注意力分数</h3>
-                    <div id="attentionMatrixForMultiply" class="matrix compact-matrix"></div>
-                </div>
-                <div class="multiplication-sign">×</div>
-                <div class="matrix-group">
-                    <h3>值矩阵 V</h3>
-                    <div id="vMatrixForMultiply" class="matrix compact-matrix"></div>
-                </div>
-                <div class="equals-sign">=</div>
-                <div class="matrix-group">
-                    <h3>注意力加权值</h3>
-                    <div id="weightedValues" class="matrix compact-matrix"></div>
-                </div>
-            </div>
-            <div class="matrix-formula">
-                <div class="formula">
-                    Z = Attention × V
-                </div>
-                <div class="formula-desc">
-                    每个token获得一个新的上下文相关表示
-                </div>
-            </div>
+        <!-- 底部独立的返回按钮 -->
+        <div class="footer-back-button">
+            <a href="index.html" class="back-button">← 返回</a>
         </div>
     </div>
 
-    <script src="js/transformer_autoregressive.js"></script>
+    <!-- 组件加载脚本 -->
+    <script type="module">
+        import { loadComponents } from './js/utils/component-loader.js';
+        
+        // 定义要加载的组件
+        const components = [
+            { url: './components/sequence-section.html', target: '#sequence-container' },
+            { url: './components/matrix-section.html', target: '#matrix-container' },
+            { url: './components/attention-matrices.html', target: '#attention-matrices-container' },
+            { url: './components/attention-calculation.html', target: '#attention-calculation-container' },
+            { url: './components/matrix-multiplication-section.html', target: '#matrix-multiplication-container' }
+        ];
+        
+        // 当DOM加载完成后加载组件
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 加载所有组件
+                await loadComponents(components);
+                console.log('所有组件加载完成');
+                
+                // 加载主控制器
+                const { initializeApp } = await import('./js/controller.js');
+                initializeApp();
+            } catch (error) {
+                console.error('组件加载失败:', error);
+            }
+        });
+    </script>
 </body>
 </html> 

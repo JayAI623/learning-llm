@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Page</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>调试页面</h1>
+    <div id="log"></div>
+    
+    <script type="module">
+        // 尝试导入每个模块并记录结果
+        const log = document.getElementById('log');
+        
+        function logMessage(msg, isError = false) {
+            const pre = document.createElement('pre');
+            pre.textContent = msg;
+            if (isError) pre.style.color = 'red';
+            log.appendChild(pre);
+        }
+        
+        async function testImport(path) {
+            try {
+                const module = await import(path);
+                logMessage(`✅ 成功导入: ${path}`);
+                logMessage(JSON.stringify(module, null, 2));
+                return true;
+            } catch (err) {
+                logMessage(`❌ 导入失败: ${path}`, true);
+                logMessage(`错误: ${err.message}`, true);
+                return false;
+            }
+        }
+        
+        // 测试每个模块
+        async function runTests() {
+            await testImport('./js/config/data.js');
+            await testImport('./js/utils/matrix.js');
+            await testImport('./js/utils/animation.js');
+            await testImport('./js/components/attention.js');
+            await testImport('./js/components/ui.js');
+            await testImport('./js/components/heatmap.js');
+            await testImport('./js/components/weighted.js');
+            await testImport('./js/controller.js');
+        }
+        
+        runTests();
+    </script>
+</body>
+</html> 

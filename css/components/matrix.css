@@ -1,7 +1,5 @@
-.matrix-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 20px;
+/* 通用组件样式 */
+.component-section {
     background: white;
     padding: 20px;
     border-radius: 8px;
@@ -9,32 +7,16 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.matrix-container {
+.section-title {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.matrix-section {
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.matrix-container h3 {
-    color: var(--primary-color);
-    margin: 0;
-    padding: 10px;
-    background: var(--matrix-bg);
-    border-radius: 6px;
-    text-align: center;
-    font-size: 1.1em;
-}
-
-.matrix-group {
-    background: var(--matrix-bg);
-    padding: 15px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.matrix-group:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .matrix-label {
@@ -55,27 +37,27 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 8px;
+    padding: 6px;
     background: rgba(255,255,255,0.5);
     border-radius: 4px;
 }
 
 .matrix-row {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     justify-content: center;
 }
 
 .matrix-cell {
-    width: 45px;
-    height: 45px;
+    width: 38px;
+    height: 38px;
     background: white;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 4px;
     font-family: monospace;
-    font-size: 0.9em;
+    font-size: 0.85em;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -121,33 +103,547 @@
 }
 
 .matrix-multiplication-section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* 不再需要基础卡片样式，由component-section提供 */
 }
 
 .matrix-multiplication-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 5px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* 调整矩阵乘法组件在左右布局中的表现 */
+.formula-result-layout .matrix-multiplication-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+.formula-result-layout .matrix-formula {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.formula-result-layout .formula {
+    font-family: "Computer Modern", serif;
+    font-size: 1.4em;
+    color: var(--text-color);
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.matrix-multiplication-container .matrix-group {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 8px;
+    margin: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    flex: 0 0 auto;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.matrix-multiplication-container h4 {
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    text-align: center;
 }
 
 .multiplication-sign,
 .equals-sign {
     font-size: 2em;
     color: var(--primary-color);
+    margin: 0 5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
+/* 优化矩阵公式区域 */
 .matrix-formula {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.matrix-formula .formula {
+    font-family: "Computer Modern", serif;
+    font-size: 1.4em;
+    color: var(--text-color);
+    padding: 20px;
+    background: white;
+    border-radius: 6px;
     text-align: center;
-    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .formula-desc {
     margin-top: 10px;
-    font-size: 0.9em;
+    font-size: 1em;
     color: var(--text-color);
+    text-align: center;
+    max-width: 300px;
+}
+
+/* 注意力矩阵容器的单行布局 */
+.attention-matrices .matrices-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    width: 100%;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+.attention-matrices .matrix-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.attention-matrices .matrix-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.attention-matrices .matrix {
+    padding: 10px;
+    gap: 5px;
+    width: 100%;
+    max-width: max-content;
+    background: rgba(248, 250, 252, 0.5);
+    border-radius: 4px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 注意力矩阵行和单元格样式 */
+.attention-matrices .matrix-row {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 5px;
+    margin-bottom: 5px;
+    flex-wrap: nowrap;
+}
+
+.attention-matrices .matrix-cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.attention-matrices .matrix-cell:hover {
+    transform: scale(1.1);
+    z-index: 2;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* 注意力矩阵的紧凑标题 */
+.attention-matrices h3 {
+    font-size: 1em;
+    padding: 6px;
+    margin-bottom: 8px;
+    text-align: center;
+    background-color: rgba(230, 245, 255, 0.8);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.attention-matrices .matrix-label {
+    margin-bottom: 3px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attention-matrices .matrix-dimensions {
+    font-size: 0.75em;
+}
+
+/* 更小的注意力矩阵容器内边距 */
+.attention-matrices {
+    padding: 10px 8px;
+}
+
+/* 更小的标题和边距 */
+.attention-matrices .section-title {
+    margin-bottom: 12px;
+    font-size: 1.2em;
+}
+
+/* 更紧凑的矩阵组样式 */
+.attention-matrices .matrix-group {
+    padding: 5px;
+    margin: 0;
+}
+
+/* 调整整体容器结构 */
+.attention-matrices.component-section {
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 15px;
+    overflow-x: auto; /* 在小屏幕上允许水平滚动 */
+}
+
+/* 优化矩阵单元格整体布局 */
+.attention-matrices .matrix {
+    padding: 4px;
+    gap: 2px;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.attention-matrices .matrix-row {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+
+/* Mask矩阵中的-inf值样式 */
+.matrix-cell.masked {
+    background-color: rgba(230, 230, 230, 0.5) !important;
+    color: #888;
+    font-style: italic;
+}
+
+/* 修改矩阵乘法容器，允许换行 */
+.matrix-multiplication-section .right-result .matrix-multiplication-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    overflow-x: auto;
+    min-width: 100%;
+    padding: 20px 10px;
+}
+
+/* 修改矩阵组样式，确保内容在需要时可以换行 */
+.matrix-multiplication-container .matrix-group {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 10px;
+    margin: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    flex: 0 0 auto;
+    min-width: fit-content;
+    white-space: normal;
+}
+
+/* 修改用于矩阵乘法的矩阵样式 */
+.matrix-multiplication-container .matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    min-width: 0; /* 允许收缩 */
+    width: 100%; /* 使用全宽 */
+}
+
+/* 确保矩阵单元格有固定宽度和显示 */
+.matrix-multiplication-container .matrix-cell {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75em;
+    flex: 0 0 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* 减小矩阵运算符号尺寸和间距 */
+.multiplication-sign,
+.equals-sign {
+    font-size: 1.8em;
+    color: var(--primary-color);
+    margin: 0 3px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    flex: 0 0 auto;
+}
+
+/* 修改用于矩阵乘法的矩阵尺寸 */
+.matrix-multiplication-container .compact-matrix {
+    padding: 2px;
+    gap: 1px;
+}
+
+.matrix-multiplication-container .compact-matrix .matrix-cell {
+    width: 30px;  /* 减小宽度 */
+    height: 30px; /* 减小高度 */
+    font-size: 0.75em;
+    margin: 1px;  /* 减小间距 */
+}
+
+.matrix-multiplication-container .compact-matrix .matrix-row {
+    gap: 1px;  /* 减小行间距 */
+    margin-bottom: 1px;
+}
+
+/* 使操作符号更灵活适应布局 */
+.matrix-multiplication-container .multiplication-sign,
+.matrix-multiplication-container .equals-sign {
+    font-size: 1.6em;
+    margin: 10px;
+    padding: 10px;
+    align-self: center;
+}
+
+/* 优化公式区域在新布局中的表现 */
+.matrix-multiplication-section .left-formula .matrix-formula {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* 标题背景色增强 */
+.formula-result-layout h3 {
+    background-color: rgba(230, 245, 255, 0.8);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 确保注意力加权计算过程有足够的空间 */
+.matrix-multiplication-section.component-section {
+    min-height: 500px;
+    width: 100%;
+}
+
+/* 右侧结果区域宽度和高度优化 */
+.matrix-multiplication-section .right-result {
+    flex: 1.5;
+    min-width: 0;
+}
+
+/* 左侧公式区域宽度 */
+.matrix-multiplication-section .left-formula {
+    flex: 0.8;
+}
+
+/* 矩阵标题更紧凑 */
+.matrix-multiplication-container h4 {
+    margin: 0 0 5px 0;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* 设置公式和结果的水平布局 */
+.formula-result-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+    flex-wrap: nowrap;
+}
+
+.formula-result-layout .left-formula {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    min-width: 250px;
+}
+
+.formula-result-layout .right-result {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* 响应式样式适配 */
+@media screen and (max-width: 768px) {
+    .formula-result-layout {
+        flex-direction: column;
+    }
+    
+    .formula-result-layout .left-formula,
+    .formula-result-layout .right-result {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .matrix-multiplication-container {
+        padding: 10px 5px;
+    }
+    
+    .matrix-multiplication-container .matrix-group {
+        min-width: 0; /* 允许更小的宽度 */
+        width: 100%; /* 在小屏幕上占满宽度 */
+        max-width: 100%;
+    }
+    
+    .matrix-multiplication-container .matrix-cell {
+        width: 35px; /* 增加单元格宽度 */
+        height: 35px; /* 增加单元格高度 */
+        font-size: 0.8em;
+    }
+    
+    .matrix-multiplication-container .multiplication-sign,
+    .matrix-multiplication-container .equals-sign {
+        margin: 5px 10px; /* 减少垂直边距 */
+        padding: 5px;
+    }
+    
+    .attention-matrices .matrices-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .matrix-multiplication-container .matrix-cell {
+        width: 24px;
+        height: 24px;
+        font-size: 0.65em;
+    }
+    
+    .matrix-multiplication-container h4 {
+        font-size: 0.8em;
+    }
+    
+    .attention-matrices .matrices-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* token-label样式 */
+.token-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    padding: 0 5px;
+    color: var(--text-color);
+    background: rgba(0, 122, 255, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    min-width: 20px;
+    height: 28px;
+    flex: 0 0 auto;
+    margin-right: 5px;
+    margin-bottom: 2px; /* 增加下边距 */
+}
+
+.matrix-multiplication-container .matrix-row {
+    display: flex;
+    gap: 2px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap; /* 允许单元格换行 */
+    margin-bottom: 4px; /* 增加行间距 */
+    min-width: 0; /* 允许收缩 */
+    width: 100%; /* 使用全宽 */
+}
+
+/* 统一的注意力矩阵单元格样式 */
+.attention-matrix .matrix-cell,
+.attention-matrices .matrix-cell {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    flex: none; /* 防止弹性伸缩 */
+    min-width: 45px; /* 最小宽度与固定宽度一致 */
+}
+
+/* 注意力矩阵行样式 */
+.attention-matrix .matrix-row,
+.attention-matrices .matrix-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 5px;
+    margin-bottom: 5px;
+    flex-wrap: nowrap; /* 防止单元格换行 */
+}
+
+/* 表格布局中的单元格样式 */
+.attention-table {
+    border-collapse: separate;
+    border-spacing: 5px;
+    margin: 0 auto;
+    background: rgba(248, 250, 252, 0.5);
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.attention-table th,
+.attention-table td {
+    padding: 0;
+    text-align: center;
+    width: 45px;
+    height: 45px;
+}
+
+.heatmap-cell {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    font-size: 0.8em;
+    position: relative;
+    transition: transform 0.2s ease;
 } 

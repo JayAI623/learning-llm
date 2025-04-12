@@ -1,7 +1,7 @@
 // 示例数据
 const inputSequence = ['我', '爱', '编', '程'];
 const embeddingDim = 4;
-let timeStep = 0;  // 当前时间步
+let timeStep = 2;  // 当前时间步（修改为2，显示三个元素：我、爱、编）
 const maxTimeSteps = inputSequence.length;
 
 // 模拟词嵌入矩阵（为了演示保持固定值）

@@ -1,27 +1,37 @@
-<div class="matrix-multiplication-section">
-    <h3 class="section-title">注意力加权计算过程</h3>
-    <div class="matrix-multiplication-container">
-        <div class="matrix-group">
-            <h3>注意力分数</h3>
-            <div id="attentionMatrixForMultiply" class="matrix compact-matrix"></div>
+<div class="component-section matrix-multiplication-section">
+    <h2 class="section-title">注意力加权计算过程</h2>
+    
+    <div class="formula-result-layout">
+        <div class="left-formula">
+            <h3>计算公式</h3>
+            <div class="matrix-formula">
+                <div class="formula">
+                    Z = Attention × V
+                </div>
+                <div class="formula-desc">
+                    每个token获得一个新的上下文相关表示
+                </div>
+            </div>
         </div>
-        <div class="multiplication-sign">×</div>
-        <div class="matrix-group">
-            <h3>值矩阵 V</h3>
-            <div id="vMatrixForMultiply" class="matrix compact-matrix"></div>
-        </div>
-        <div class="equals-sign">=</div>
-        <div class="matrix-group">
-            <h3>注意力加权值</h3>
-            <div id="weightedValues" class="matrix compact-matrix"></div>
-        </div>
-    </div>
-    <div class="matrix-formula">
-        <div class="formula">
-            Z = Attention × V
-        </div>
-        <div class="formula-desc">
-            每个token获得一个新的上下文相关表示
+        
+        <div class="right-result">
+            <h3>计算过程</h3>
+            <div class="matrix-multiplication-container">
+                <div class="matrix-group">
+                    <h4>注意力分数</h4>
+                    <div id="attentionMatrixForMultiply" class="matrix compact-matrix"></div>
+                </div>
+                <div class="multiplication-sign">×</div>
+                <div class="matrix-group">
+                    <h4>值矩阵 V</h4>
+                    <div id="vMatrixForMultiply" class="matrix compact-matrix"></div>
+                </div>
+                <div class="equals-sign">=</div>
+                <div class="matrix-group">
+                    <h4>注意力加权值</h4>
+                    <div id="weightedValues" class="matrix compact-matrix"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div> 

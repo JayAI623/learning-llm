@@ -68,9 +68,12 @@ h1 {
 
 /* 标题样式统一 */
 .section-title {
-    font-size: 1.3em;
-    margin-bottom: 15px;
-    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    font-size: 1.5em;
+    text-align: center;
 }
 
 /* 按钮统一样式 */
@@ -108,4 +111,103 @@ h1 {
 .footer-back-button {
     margin-top: 30px;
     text-align: center;
+}
+
+/* 
+ * 通用布局样式
+ * 为所有组件共享的样式定义
+ */
+
+/* 通用卡片容器样式 */
+.component-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 全局容器样式 */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 分格布局组件 */
+.grid-layout {
+    display: grid;
+    gap: 20px;
+}
+
+/* 两列布局 */
+.grid-layout-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* 三列布局 */
+.grid-layout-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* 弹性布局 */
+.flex-layout {
+    display: flex;
+    gap: 20px;
+}
+
+/* 居中对齐 */
+.center-align {
+    justify-content: center;
+    align-items: center;
+}
+
+/* 垂直布局 */
+.flex-column {
+    flex-direction: column;
+}
+
+/* 通用网格布局 */
+.matrices-grid,
+.calculation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* 通用容器样式 */
+.matrix-container,
+.calculation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 通用容器标题样式 */
+.matrix-container h3,
+.calculation-container h3 {
+    color: var(--primary-color);
+    margin: 0;
+    padding: 10px;
+    background: var(--matrix-bg);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+/* 通用组内元素样式 */
+.matrix-group,
+.calculation-flow,
+.attention-scores {
+    background: var(--matrix-bg);
+    padding: 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.matrix-group:hover,
+.calculation-flow:hover,
+.attention-scores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 } 

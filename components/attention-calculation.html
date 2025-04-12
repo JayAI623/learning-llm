@@ -1,31 +1,41 @@
-<div class="attention-calculation">
-    <div class="calculation-flow">
-        <div class="flow-step">
-            <div class="formula">
-                QK<sup>T</sup> = Q × K<sup>T</sup>
-                <div class="arrow">↓</div>
+<div class="component-section attention-calculation">
+    <h2 class="section-title">注意力计算流程</h2>
+    
+    <div class="formula-result-layout">
+        <div class="left-formula">
+            <h3>计算步骤</h3>
+            <div class="calculation-flow">
+                <div class="flow-step">
+                    <div class="formula">
+                        QK<sup>T</sup> = Q × K<sup>T</sup>
+                        <div class="arrow">↓</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="formula">
+                        Scale = QK<sup>T</sup> / √d<sub>k</sub>
+                        <div class="arrow">↓</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="formula">
+                        Mask(QK<sup>T</sup>)
+                        <div class="arrow">↓</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="formula">
+                        Attention = softmax(Scale)
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="flow-step">
-            <div class="formula">
-                Scale = QK<sup>T</sup> / √d<sub>k</sub>
-                <div class="arrow">↓</div>
+        
+        <div class="right-result">
+            <h3>注意力分数</h3>
+            <div class="attention-scores">
+                <div id="attentionScores"></div>
             </div>
         </div>
-        <div class="flow-step">
-            <div class="formula">
-                Mask(QK<sup>T</sup>)
-                <div class="arrow">↓</div>
-            </div>
-        </div>
-        <div class="flow-step">
-            <div class="formula">
-                Attention = softmax(Scale)
-            </div>
-        </div>
-    </div>
-    <div class="attention-scores">
-        <h3>注意力分数</h3>
-        <div id="attentionScores" class="attention-scores-matrix"></div>
     </div>
 </div> 

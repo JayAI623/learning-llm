@@ -39,8 +39,6 @@ function updateWeightedValues(attentionWeights, V) {
         // 添加行标签（token）
         const tokenLabel = document.createElement('div');
         tokenLabel.className = 'token-label';
-        tokenLabel.style.width = '30px';
-        tokenLabel.style.marginRight = '10px';
         tokenLabel.textContent = currentSeq[i];
         rowDiv.appendChild(tokenLabel);
         
@@ -69,8 +67,6 @@ function updateWeightedValues(attentionWeights, V) {
         // 添加行标签（token）
         const tokenLabel = document.createElement('div');
         tokenLabel.className = 'token-label';
-        tokenLabel.style.width = '30px';
-        tokenLabel.style.marginRight = '10px';
         tokenLabel.textContent = currentSeq[i];
         rowDiv.appendChild(tokenLabel);
         
@@ -93,6 +89,17 @@ function updateWeightedValues(attentionWeights, V) {
         vContainer.appendChild(rowDiv);
     });
     
+    // 为结果矩阵添加标题
+    const resultTitle = document.createElement('div');
+    resultTitle.className = 'result-title';
+    resultTitle.textContent = '注意力加权值结果（所有维度）';
+    resultTitle.style.textAlign = 'center';
+    resultTitle.style.marginBottom = '10px';
+    resultTitle.style.fontSize = '0.9em';
+    resultTitle.style.fontWeight = 'bold';
+    resultTitle.style.color = 'var(--text-color)';
+    outputContainer.appendChild(resultTitle);
+    
     // 显示输出矩阵Z
     Z.forEach((row, i) => {
         const rowDiv = document.createElement('div');
@@ -101,8 +108,6 @@ function updateWeightedValues(attentionWeights, V) {
         // 添加行标签（token）
         const tokenLabel = document.createElement('div');
         tokenLabel.className = 'token-label';
-        tokenLabel.style.width = '30px';
-        tokenLabel.style.marginRight = '10px';
         tokenLabel.textContent = currentSeq[i];
         rowDiv.appendChild(tokenLabel);
         

@@ -1,21 +1,42 @@
-<div class="attention-matrices">
-    <h3 class="section-title">Attention score计算过程</h3>
-    <div class="attention-matrices-grid">
+<div class="component-section attention-matrices">
+    <h2 class="section-title">Attention score计算过程</h2>
+    
+    <div class="matrices-grid">
         <div class="matrix-container">
-            <h3>QK<sup>T</sup> 矩阵</h3>
-            <div id="qkMatrix" class="matrix ultra-compact-matrix"></div>
+            <h3>QK<sup>T</sup></h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    QK<sup>T</sup> <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="qkMatrix" class="matrix attention-matrix"></div>
+            </div>
         </div>
         <div class="matrix-container">
             <h3>缩放后</h3>
-            <div id="scaledQKMatrix" class="matrix ultra-compact-matrix"></div>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    Scale <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="scaledQKMatrix" class="matrix attention-matrix"></div>
+            </div>
         </div>
         <div class="matrix-container">
             <h3>掩码后</h3>
-            <div id="maskedQKMatrix" class="matrix ultra-compact-matrix"></div>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    Mask <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="maskedQKMatrix" class="matrix attention-matrix"></div>
+            </div>
         </div>
         <div class="matrix-container">
             <h3>Softmax</h3>
-            <div id="softmaxMatrix" class="matrix ultra-compact-matrix"></div>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    Attention <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="softmaxMatrix" class="matrix attention-matrix"></div>
+            </div>
         </div>
     </div>
 </div> 

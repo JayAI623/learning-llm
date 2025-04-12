@@ -1,29 +1,44 @@
 .attention-section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* 不再需要基础卡片样式，由component-section提供 */
 }
 
 .attention-table {
     border-collapse: separate;
-    border-spacing: 2px;
-    background: var(--matrix-border);
-    padding: 2px;
+    border-spacing: 4px;
+    background: rgba(248, 250, 252, 0.5);
+    padding: 5px;
     border-radius: 8px;
+    margin: 0 auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: table;
+    table-layout: fixed;
+    max-width: none;
+    width: auto;
+}
+
+.attention-table tr {
+    display: table-row;
 }
 
 .attention-table th,
 .attention-table td {
+    width: 45px;
+    height: 45px;
     padding: 0;
     text-align: center;
+    font-size: 0.85em;
+    display: table-cell;
 }
 
 .attention-table .token-label {
-    background: var(--matrix-bg);
+    background: rgba(0, 122, 255, 0.1);
     font-weight: bold;
     border-radius: 4px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .attention-heatmap {
@@ -36,11 +51,10 @@
 }
 
 .heatmap-cell {
-    aspect-ratio: 1;
-    min-width: 40px;
+    background-color: white;
     border-radius: 4px;
-    position: relative;
-    transition: all 0.3s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
 }
 
 .heatmap-cell::before {
@@ -53,7 +67,7 @@
 }
 
 .masked-cell {
-    background-color: #E0E0E0 !important;
+    background-color: rgba(230, 230, 230, 0.5) !important;
     position: relative;
 }
 
@@ -64,22 +78,12 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 24px;
-    color: #999;
+    color: #888;
 }
 
 .attention-matrices {
     padding: 15px;
-    background: white;
-    border-radius: 8px;
-    margin: 25px 0;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.section-title {
-    color: var(--primary-color);
-    margin-bottom: 15px;
-    font-size: 1.5em;
-    text-align: center;
+    /* 移除重复的白色背景和阴影样式，仅保留与通用样式不同的部分 */
 }
 
 .attention-matrices h3 {
@@ -114,69 +118,54 @@
 }
 
 .attention-calculation {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 40px;
-    align-items: center;
-}
-
-.calculation-flow {
-    padding: 20px;
-    background: var(--matrix-bg);
-    border-radius: 8px;
+    /* 不再需要基础卡片样式，由component-section提供 */
+    /* 网格布局由通用的calculation-grid提供，删除旧的网格定义 */
 }
 
 .flow-step {
-    margin: 15px 0;
+    margin: 0;
     text-align: center;
+    width: 100%;
 }
 
-.formula {
+.flow-step .formula {
     font-family: "Computer Modern", serif;
     font-size: 1.2em;
     color: var(--text-color);
-    padding: 10px;
+    padding: 20px;
     background: white;
     border-radius: 6px;
-    display: inline-block;
-    min-width: 200px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 .arrow {
     color: var(--primary-color);
-    font-size: 1.5em;
+    font-size: 1.8em;
     margin: 10px 0;
 }
 
-.attention-scores {
-    padding: 20px;
-    background: var(--matrix-bg);
-    border-radius: 8px;
-}
+/* 注意力分数容器样式已移至通用样式 */
 
-.attention-scores h3 {
-    margin-top: 0;
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 15px;
+.attention-scores {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
 }
 
 .attention-scores-matrix {
     display: flex;
     justify-content: center;
+    width: auto;
+    margin: 0 auto;
 }
 
 .process-explanation {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* 不再需要基础卡片样式，由component-section提供 */
 }
 
 .process-explanation h3 {
@@ -190,4 +179,210 @@
 
 .process-explanation li {
     margin: 10px 0;
-} 
+}
+
+/* 强制左右布局 */
+.attention-calculation .formula-result-layout,
+.matrix-multiplication-section .formula-result-layout {
+    flex: 1;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px;
+    width: 100%;
+}
+
+.attention-calculation .left-formula,
+.matrix-multiplication-section .left-formula {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: var(--matrix-bg);
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.attention-calculation .right-result,
+.matrix-multiplication-section .right-result {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: var(--matrix-bg);
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* 调整内部元素样式 */
+.attention-calculation .calculation-flow,
+.matrix-multiplication-section .matrix-formula {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* 通用样式 */
+.formula-result-layout h3 {
+    color: var(--primary-color);
+    margin: 0;
+    padding: 10px;
+    background: var(--matrix-bg);
+    border-radius: 6px 6px 0 0;
+    text-align: center;
+    font-size: 1.1em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 500;
+}
+
+/* 优化计算流程中的公式样式 */
+.calculation-flow {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    padding-top: 30px;
+}
+
+/* 确保计算步骤在内容区域居中 */
+.left-formula .calculation-flow,
+.left-formula .matrix-formula {
+    justify-content: center;
+}
+
+/* 确保结果区域内容居中 */
+.right-result .attention-scores,
+.right-result .matrix-multiplication-container {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* 确保组件高度一致 */
+.attention-calculation.component-section,
+.matrix-multiplication-section.component-section {
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 内容区域调整 */
+.calculation-flow,
+.attention-scores,
+.matrix-formula,
+.matrix-multiplication-container {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 热力图容器样式 */
+.heatmap-container {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    width: max-content;
+    margin: 0 auto;
+    padding: 10px;
+    background: rgba(248, 250, 252, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    column-gap: 0;
+    row-gap: 0;
+}
+
+/* 左上角空元素 */
+.heatmap-corner {
+    grid-row: 1;
+    grid-column: 1;
+    width: 49px;
+    height: 49px;
+}
+
+/* 行标签容器 */
+.heatmap-row-labels {
+    grid-row: 2;
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+}
+
+/* 列标签容器 */
+.heatmap-col-labels {
+    grid-row: 1;
+    grid-column: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+}
+
+/* 热力图矩阵 */
+.heatmap-matrix {
+    grid-row: 2;
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* 热力图行 */
+.heatmap-row {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+}
+
+/* 热力图单元格和标签统一大小 */
+.heatmap-cell,
+.heatmap-row-label,
+.heatmap-col-label {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin: 0;
+    padding: 0;
+    font-size: 0.85em;
+}
+
+/* 行列标签样式 */
+.heatmap-row-label,
+.heatmap-col-label {
+    background-color: rgba(0, 122, 255, 0.1);
+    font-weight: bold;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.1);
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 掩码单元格 */
+.heatmap-cell.masked-cell {
+    background-color: rgba(230, 230, 230, 0.5);
+    color: #888;
+    font-size: 1.2em;
+}

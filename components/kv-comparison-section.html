@@ -1,0 +1,99 @@
+<!-- KV缓存对比组件 -->
+<div class="component-section matrix-section">
+    <h2 class="section-title">KV缓存对比演示</h2>
+    
+    <!-- 颜色图例 -->
+    <div class="legend-container">
+        <div class="legend-item">
+            <div class="legend-color cached"></div>
+            <span>已缓存的计算结果（橘黄色）</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color new"></div>
+            <span>当前步骤的计算结果（蓝色）</span>
+        </div>
+    </div>
+    
+    <div class="comparison-container">
+        <!-- 标准模式(无缓存) -->
+        <div class="standard-mode">
+            <h3>标准模式(无缓存)</h3>
+            <div class="computation-counter">
+                计算量: <span id="standardComputations" class="computation-full">0</span> 操作
+            </div>
+            
+            <div class="matrices-grid">
+                <div class="matrix-container">
+                    <h3>Q矩阵</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            查询矩阵 Q <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="qMatrixStandard" class="matrix standard-matrix"></div>
+                    </div>
+                </div>
+                
+                <div class="matrix-container">
+                    <h3>K矩阵</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            键矩阵 K <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="kMatrixStandard" class="matrix standard-matrix"></div>
+                    </div>
+                </div>
+                
+                <div class="matrix-container">
+                    <h3>V矩阵</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            值矩阵 V <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="vMatrixStandard" class="matrix standard-matrix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 缓存模式 -->
+        <div class="cache-mode">
+            <h3>KV缓存模式</h3>
+            <div class="computation-counter">
+                计算量: <span id="cacheComputations" class="computation-saved">0</span> 操作
+                <div>节省: <span id="computationSaved">0%</span></div>
+            </div>
+            
+            <div class="matrices-grid">
+                <div class="matrix-container">
+                    <h3>Q矩阵</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            当前token查询 <span class="matrix-dimensions">(1×4)</span>
+                        </div>
+                        <div id="qMatrixCache" class="matrix standard-matrix"></div>
+                    </div>
+                </div>
+                
+                <div class="matrix-container">
+                    <h3>K缓存</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            键缓存 K <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="kMatrixCache" class="matrix cached-matrix"></div>
+                    </div>
+                </div>
+                
+                <div class="matrix-container">
+                    <h3>V缓存</h3>
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            值缓存 V <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="vMatrixCache" class="matrix cached-matrix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

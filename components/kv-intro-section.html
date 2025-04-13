@@ -1,0 +1,10 @@
+<!-- KV缓存工作原理介绍组件 -->
+<section class="component-section">
+    <h2 class="section-title">KV缓存的工作原理</h2>
+    <p>自回归模型(如GPT系列)在生成文本时会逐个生成token。对于每个新token，模型需要处理完整的序列，包括所有之前生成的token。使用KV缓存可以避免重复计算，显著提高推理速度。</p>
+    
+    <div class="card-container">
+        <h3>为什么需要KV缓存?</h3>
+        <p>当序列越来越长时，模型需要重复计算已处理过的token的Key和Value。通过缓存之前计算过的K和V矩阵，我们可以避免这种重复计算。</p>
+    </div>
+</section> 

@@ -1,0 +1,192 @@
+/* KV缓存组件样式 */
+
+/* 表格样式 */
+.matrix-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 14px;
+    width: 100%;
+}
+
+.matrix-table td {
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+/* 标准矩阵蓝色样式 */
+.standard-matrix .matrix-cell {
+    background-color: rgba(33, 150, 243, 0.2);
+}
+
+/* 缓存指示器 */
+.cached-matrix {
+    background-color: rgba(255, 248, 225, 0.3);
+    border: 2px dashed #FFA000;
+    position: relative;
+}
+
+.cached-matrix::before {
+    content: "已缓存";
+    position: absolute;
+    top: -15px;
+    right: 0;
+    font-size: 12px;
+    color: #FFA000;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* 计算节省指示器 */
+.computation-counter {
+    font-size: 16px;
+    margin: 15px 0;
+    padding: 8px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.computation-saved {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.computation-full {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* 高亮新添加的值 */
+.new-value {
+    background-color: rgba(33, 150, 243, 0.2);
+    font-weight: bold;
+    animation: pulse-blue 1.5s infinite;
+}
+
+@keyframes pulse-blue {
+    0% { background-color: rgba(33, 150, 243, 0.2); }
+    50% { background-color: rgba(33, 150, 243, 0.4); }
+    100% { background-color: rgba(33, 150, 243, 0.2); }
+}
+
+/* 已缓存的值 */
+.cached-value {
+    background-color: rgba(255, 152, 0, 0.2);
+}
+
+/* 图例样式 */
+.legend-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.legend-color.new {
+    background-color: rgba(33, 150, 243, 0.2);
+}
+
+.legend-color.cached {
+    background-color: rgba(255, 152, 0, 0.2);
+}
+
+/* 保持矩阵对齐的样式 */
+.matrices-grid {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 15px;
+    width: 100%;
+}
+
+.matrix-container {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.matrix-group {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.matrix {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 对比区域 */
+.comparison-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.standard-mode, .cache-mode {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    width: calc(50% - 10px);
+    box-sizing: border-box;
+}
+
+/* 令牌/Token显示 */
+.token {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    opacity: 0.5;
+}
+
+.token.active {
+    background-color: #e1f5fe;
+    border-color: #4fc3f7;
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .comparison-container {
+        flex-direction: column;
+    }
+    
+    .standard-mode, .cache-mode {
+        width: 100%;
+    }
+} 

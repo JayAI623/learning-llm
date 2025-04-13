@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KV缓存优化演示</title>
+    <link rel="stylesheet" href="css/transformer.css">
+    <link rel="stylesheet" href="css/components/kv-cache.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部独立的返回按钮 -->
+        <div class="back-button-container">
+            <a href="index.html" class="back-button">← 返回</a>
+        </div>
+        
+        <!-- 步骤控制与标题融合在一起 -->
+        <div class="step-controls">
+            <div class="step-indicator">
+                <span>时间步：</span><span id="currentStep">0</span>
+                <span>序列长度：</span><span id="sequenceLength">1</span>
+            </div>
+            <div class="header">
+                <h1>KV缓存优化Transformer模型推理</h1>
+            </div>
+            <div class="buttons-container">
+                <button id="prevStep" class="btn">上一步</button>
+                <button id="nextStep" class="btn">下一步</button>
+            </div>
+        </div>
+
+        <!-- 各个组件的容器 -->
+        <div id="sequence-container"></div>
+        <div id="intro-container"></div>
+        <div id="comparison-container"></div>
+        <div id="attention-container"></div>
+
+        <!-- 底部独立的返回按钮 -->
+        <div class="footer-back-button">
+            <a href="index.html" class="back-button">← 返回</a>
+        </div>
+    </div>
+
+    <!-- 组件加载脚本 -->
+    <script type="module">
+        import { loadComponents } from './js/utils/component-loader.js';
+        
+        // 定义要加载的组件
+        const components = [
+            { url: './components/kv-sequence-section.html', target: '#sequence-container' },
+            { url: './components/kv-intro-section.html', target: '#intro-container' },
+            { url: './components/kv-comparison-section.html', target: '#comparison-container' },
+            { url: './components/kv-attention-section.html', target: '#attention-container' }
+        ];
+        
+        // 当DOM加载完成后加载组件
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // 加载所有组件
+                await loadComponents(components);
+                console.log('所有组件加载完成');
+                
+                // 加载控制器并初始化
+                const { initializeApp } = await import('./js/kv-cache-demo.js');
+                initializeApp();
+            } catch (error) {
+                console.error('组件加载失败:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

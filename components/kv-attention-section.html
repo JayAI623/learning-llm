@@ -1,0 +1,43 @@
+<!-- KV缓存注意力计算组件 -->
+<div class="component-section matrix-multiplication-section">
+    <h2 class="section-title">注意力计算</h2>
+    
+    <div class="formula-result-layout">
+        <div class="left-formula">
+            <h3>计算公式</h3>
+            <div class="matrix-formula">
+                <div class="formula">
+                    Attention = Softmax(QK<sup>T</sup> / √d)
+                </div>
+                <div class="formula">
+                    Z = Attention × V
+                </div>
+                <div class="formula-desc">
+                    KV缓存避免了重复计算已有token的K和V
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-result">
+            <h3>结果比较</h3>
+            <div class="matrix-comparison">
+                <div class="matrix-container">
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            标准模式输出 <span class="matrix-dimensions">(t×4)</span>
+                        </div>
+                        <div id="outputStandard" class="matrix"></div>
+                    </div>
+                </div>
+                <div class="matrix-container">
+                    <div class="matrix-group">
+                        <div class="matrix-label">
+                            KV缓存模式输出 <span class="matrix-dimensions">(1×4)</span>
+                        </div>
+                        <div id="outputCache" class="matrix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

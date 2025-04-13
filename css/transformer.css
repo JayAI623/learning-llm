@@ -13,4 +13,37 @@
 @import 'components/attention.css';
 
 /* 导入工具样式 */
-@import 'utils/responsive.css'; 
+@import 'utils/responsive.css';
+
+/* 添加矩阵表格样式 */
+.matrix-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.matrix-table td {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    text-align: center;
+    min-width: 40px;
+    font-size: 14px;
+    font-family: monospace;
+}
+
+.matrix-empty {
+    padding: 15px;
+    color: #888;
+    font-style: italic;
+    border: 1px dashed #ccc;
+    display: inline-block;
+}
+
+/* 确保矩阵容器正确显示 */
+.matrix {
+    display: inline-block;
+    margin: 5px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: #f9f9f9;
+    min-width: 100px;
+} 

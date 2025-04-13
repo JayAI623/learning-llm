@@ -3,53 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Page</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        pre { background: #f5f5f5; padding: 10px; }
-    </style>
+    <title>模块调试页面</title>
 </head>
 <body>
-    <h1>调试页面</h1>
-    <div id="log"></div>
-    
+    <h1>模块加载调试</h1>
+    <div id="output"></div>
+
     <script type="module">
-        // 尝试导入每个模块并记录结果
-        const log = document.getElementById('log');
-        
-        function logMessage(msg, isError = false) {
-            const pre = document.createElement('pre');
-            pre.textContent = msg;
-            if (isError) pre.style.color = 'red';
-            log.appendChild(pre);
+        // 尝试直接导入data.js
+        try {
+            // 相对路径导入
+            const dataModule = await import('./data.js');
+            
+            document.getElementById('output').innerHTML = `
+                <h2>模块加载成功</h2>
+                <pre>${JSON.stringify({
+                    tokenData: dataModule.tokenData,
+                    headDim: dataModule.headDim,
+                    hasPrecomputedQKV: !!dataModule.precomputedQKV
+                }, null, 2)}</pre>
+            `;
+        } catch (error) {
+            document.getElementById('output').innerHTML = `
+                <h2>模块加载失败</h2>
+                <pre>${error.toString()}</pre>
+                <p>错误详情：${error.message}</p>
+                <p>堆栈：${error.stack}</p>
+            `;
+            console.error('模块加载错误:', error);
         }
-        
-        async function testImport(path) {
-            try {
-                const module = await import(path);
-                logMessage(`✅ 成功导入: ${path}`);
-                logMessage(JSON.stringify(module, null, 2));
-                return true;
-            } catch (err) {
-                logMessage(`❌ 导入失败: ${path}`, true);
-                logMessage(`错误: ${err.message}`, true);
-                return false;
-            }
-        }
-        
-        // 测试每个模块
-        async function runTests() {
-            await testImport('./js/config/data.js');
-            await testImport('./js/utils/matrix.js');
-            await testImport('./js/utils/animation.js');
-            await testImport('./js/components/attention.js');
-            await testImport('./js/components/ui.js');
-            await testImport('./js/components/heatmap.js');
-            await testImport('./js/components/weighted.js');
-            await testImport('./js/controller.js');
-        }
-        
-        runTests();
     </script>
 </body>
 </html> 

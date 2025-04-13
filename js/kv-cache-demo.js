@@ -1,0 +1,440 @@
+import {
+    inputSequence,
+    embeddingDim,
+    timeStep,
+    maxTimeSteps,
+    embeddingMatrix,
+    W_Q,
+    W_K,
+    W_V,
+    getCurrentSequence,
+    updateTimeStep
+} from './config/data.js';
+
+import { matrixMultiply, transposeMatrix, softmax } from './utils/matrix.js';
+
+// 当前时间步和动画状态
+let currentTimeStep = 0; // 始终从0开始
+let isAnimating = false;
+
+// KV缓存
+let kCache = []; // 存储每个时间步计算过的K矩阵
+let vCache = []; // 存储每个时间步计算过的V矩阵
+
+// 计算操作计数器
+let standardComputations = 0;
+let cacheComputations = 0;
+
+// 初始化函数
+function initializeApp() {
+    console.log('KV缓存演示: 初始化中...');
+    
+    // 确保所有需要的DOM元素都存在
+    const requiredElements = [
+        'prevStep',
+        'nextStep',
+        'currentStep',
+        'sequenceLength',
+        'inputSequence',
+        'qMatrixStandard',
+        'kMatrixStandard',
+        'vMatrixStandard',
+        'qMatrixCache',
+        'kMatrixCache',
+        'vMatrixCache',
+        'outputStandard',
+        'outputCache',
+        'standardComputations',
+        'cacheComputations',
+        'computationSaved'
+    ];
+    
+    const missingElements = requiredElements.filter(id => !document.getElementById(id));
+    if (missingElements.length > 0) {
+        console.error('缺少必要的DOM元素:', missingElements);
+        return;
+    }
+    
+    // 确保强制重置时间步为0（内部状态）
+    console.log('强制重置时间步和状态');
+    currentTimeStep = 0;
+    updateTimeStep(0);
+    
+    // 清空缓存，并构建初始状态的缓存
+    kCache = [];
+    vCache = [];
+    const initialSequence = getCurrentSequence(); // 应该只包含"我"
+    rebuildCache(initialSequence);
+    
+    // 重置计数器
+    standardComputations = 0;
+    cacheComputations = 0;
+    
+    // 初始化显示
+    updateVisualization();
+    
+    // 添加按钮事件监听器
+    document.getElementById('prevStep').addEventListener('click', previousStep);
+    document.getElementById('nextStep').addEventListener('click', nextStep);
+    
+    console.log('KV缓存演示: 初始化完成');
+}
+
+// 标准模式计算
+function standardComputation(sequence) {
+    // 重置计数器
+    standardComputations = 0;
+    
+    // 获取当前序列的词嵌入
+    const embeddings = sequence.map(token => {
+        standardComputations += 1; // 每个词嵌入查询算一次操作
+        return embeddingMatrix[token];
+    });
+    
+    // 计算Q、K、V矩阵
+    const Q = matrixMultiply(embeddings, W_Q);
+    const K = matrixMultiply(embeddings, W_K);
+    const V = matrixMultiply(embeddings, W_V);
+    
+    // 每个矩阵乘法算n次操作(n是序列长度)
+    standardComputations += sequence.length * 3;
+    
+    // 计算注意力分数
+    const QK = matrixMultiply(Q, transposeMatrix(K));
+    standardComputations += sequence.length; // QK乘法
+    
+    // 缩放
+    const scaledQK = QK.map(row => row.map(x => x / Math.sqrt(embeddingDim)));
+    standardComputations += sequence.length; // 缩放操作
+    
+    // 应用掩码
+    const maskedQK = scaledQK.map((row, i) => 
+        row.map((x, j) => j > i ? -1e9 : x)
+    );
+    standardComputations += sequence.length; // 掩码操作
+    
+    // 计算注意力权重
+    const attentionWeights = maskedQK.map(row => softmax(row));
+    standardComputations += sequence.length; // Softmax操作
+    
+    // 计算输出
+    const output = matrixMultiply(attentionWeights, V);
+    standardComputations += sequence.length; // 最终矩阵乘法
+    
+    return {
+        Q, K, V, 
+        attentionWeights, 
+        output
+    };
+}
+
+// KV缓存模式计算
+function cacheComputation(sequence) {
+    // 重置计数器
+    cacheComputations = 0;
+    
+    const currentLength = sequence.length;
+    let Q, K, V, attentionWeights, output;
+    
+    // 确保缓存与序列长度匹配
+    if (kCache.length !== currentLength) {
+        console.log(`缓存长度(${kCache.length})与序列长度(${currentLength})不匹配，重建缓存...`);
+        rebuildCache(sequence);
+    }
+    
+    if (currentLength === 1) {
+        // 第一个token，完整计算
+        const embeddings = [embeddingMatrix[sequence[0]]];
+        cacheComputations += 1; // 词嵌入查询
+        
+        Q = matrixMultiply([embeddings[0]], W_Q);
+        K = matrixMultiply([embeddings[0]], W_K);
+        V = matrixMultiply([embeddings[0]], W_V);
+        cacheComputations += 3; // 三个矩阵乘法
+        
+        // 确保缓存正确
+        kCache = [K[0]];
+        vCache = [V[0]];
+        
+        // 注意力计算(对于单token，注意力权重是[1])
+        attentionWeights = [[1]];
+        output = V;
+        
+    } else {
+        // 获取当前token的词嵌入
+        const currentEmbedding = embeddingMatrix[sequence[currentLength - 1]];
+        cacheComputations += 1; // 词嵌入查询
+        
+        // 只为当前token计算Q
+        Q = matrixMultiply([currentEmbedding], W_Q);
+        cacheComputations += 1; // Q矩阵乘法
+        
+        // 确保使用正确的缓存
+        K = kCache;
+        V = vCache;
+        
+        // 计算注意力分数(仅计算当前token对所有token的注意力)
+        // 首先使用现有的K计算QK
+        const qk = [];
+        for (let i = 0; i < K.length; i++) {
+            let sum = 0;
+            for (let j = 0; j < K[i].length; j++) {
+                sum += Q[0][j] * K[i][j];
+            }
+            qk.push(sum);
+        }
+        cacheComputations += currentLength; // QK计算
+        
+        // 缩放
+        const scaledQK = qk.map(x => x / Math.sqrt(embeddingDim));
+        cacheComputations += 1; // 缩放操作
+        
+        // 应用掩码(当前token只能看到自己及之前的token)
+        const maskedQK = scaledQK.map((x, idx) => idx <= currentLength - 1 ? x : -1e9);
+        cacheComputations += 1; // 掩码操作
+        
+        // 计算softmax
+        const weights = softmax(maskedQK);
+        cacheComputations += 1; // Softmax操作
+        
+        // 计算当前token的输出
+        let currentOutput = [];
+        for (let i = 0; i < embeddingDim; i++) {
+            let sum = 0;
+            for (let j = 0; j < weights.length; j++) {
+                sum += weights[j] * V[j][i];
+            }
+            currentOutput.push(sum);
+        }
+        cacheComputations += 1; // 加权求和
+        
+        // 只保留最新token的注意力权重(简化展示)
+        attentionWeights = [weights];
+        output = [currentOutput];
+    }
+    
+    return {
+        Q, K, V, 
+        attentionWeights, 
+        output
+    };
+}
+
+// 更新可视化
+function updateVisualization() {
+    // 先确保从data.js获取最新序列
+    const currentSeq = getCurrentSequence();
+    console.log('当前时间步:', currentTimeStep, '序列:', currentSeq, '序列长度:', currentSeq.length);
+    
+    // 更新序列和时间步显示（UI显示时间步+1，从1开始）
+    document.getElementById('currentStep').textContent = currentTimeStep + 1;
+    document.getElementById('sequenceLength').textContent = currentSeq.length;
+    
+    // 更新输入序列显示
+    const sequenceContainer = document.getElementById('inputSequence');
+    sequenceContainer.innerHTML = '';
+    
+    inputSequence.forEach((token, index) => {
+        const tokenElement = document.createElement('div');
+        tokenElement.className = 'token';
+        tokenElement.textContent = token;
+        
+        if (index <= currentTimeStep) {
+            tokenElement.classList.add('active');
+        }
+        
+        sequenceContainer.appendChild(tokenElement);
+    });
+    
+    // 计算标准模式
+    const standard = standardComputation(currentSeq);
+    
+    // 计算缓存模式
+    const cached = cacheComputation(currentSeq);
+    
+    // 更新矩阵显示
+    updateMatrixDisplay(standard.Q, 'qMatrixStandard');
+    updateMatrixDisplay(standard.K, 'kMatrixStandard');
+    updateMatrixDisplay(standard.V, 'vMatrixStandard');
+    
+    updateMatrixDisplay(cached.Q, 'qMatrixCache');
+    updateMatrixDisplay(cached.K, 'kMatrixCache', true); // 缓存矩阵
+    updateMatrixDisplay(cached.V, 'vMatrixCache', true); // 缓存矩阵
+    
+    // 更新输出矩阵
+    updateMatrixDisplay(standard.output, 'outputStandard');
+    updateMatrixDisplay(cached.output, 'outputCache');
+    
+    // 更新计算次数
+    document.getElementById('standardComputations').textContent = standardComputations;
+    document.getElementById('cacheComputations').textContent = cacheComputations;
+    
+    // 计算节省百分比
+    if (standardComputations > 0) {
+        const savedPercentage = Math.round((1 - cacheComputations / standardComputations) * 100);
+        document.getElementById('computationSaved').textContent = `${savedPercentage}%`;
+    } else {
+        document.getElementById('computationSaved').textContent = '0%';
+    }
+    
+    // 更新按钮状态 (考虑UI时间步从1开始的逻辑)
+    document.getElementById('prevStep').disabled = currentTimeStep === 0;
+    document.getElementById('nextStep').disabled = currentTimeStep === maxTimeSteps - 1;
+    
+    // 更新矩阵维度显示
+    const dimensions = document.querySelectorAll('.matrix-dimensions');
+    dimensions.forEach(dim => {
+        // 更新t值为当前序列长度
+        const text = dim.textContent;
+        if (text.includes('t×4')) {
+            dim.textContent = `(${currentSeq.length}×4)`;
+        }
+    });
+}
+
+// 更新矩阵显示
+function updateMatrixDisplay(matrix, containerId, isCache = false) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    // 处理不同形状的矩阵
+    const isVector = !Array.isArray(matrix[0]); // 检查是否为向量
+    
+    if (isVector) {
+        // 如果是向量，转换为只有一行的矩阵
+        matrix = [matrix];
+    }
+    
+    // 创建表格
+    const table = document.createElement('table');
+    table.className = 'matrix-table';
+    
+    // 添加行
+    for (let i = 0; i < matrix.length; i++) {
+        const row = document.createElement('tr');
+        row.className = 'matrix-row';
+        
+        // 添加单元格
+        for (let j = 0; j < matrix[i].length; j++) {
+            const cell = document.createElement('td');
+            cell.className = 'matrix-cell';
+            
+            const value = typeof matrix[i][j] === 'number' 
+                ? matrix[i][j].toFixed(2) 
+                : matrix[i][j];
+            
+            cell.textContent = value;
+            
+            // 样式处理
+            if (isCache) {
+                if (containerId === 'qMatrixCache') {
+                    // Q矩阵不需要缓存样式（设置为標准蓝色）
+                    // 这里不加具体样式，因为通过HTML的standard-matrix类已添加
+                } else {
+                    // 最新添加的行标记为"新值"（蓝色）
+                    if (i === matrix.length - 1) {
+                        cell.classList.add('new-value');
+                    } 
+                    // 之前的缓存行标记为"缓存值"（橘黄色）
+                    else if (i < matrix.length - 1) {
+                        cell.classList.add('cached-value');
+                    }
+                }
+            }
+            
+            row.appendChild(cell);
+        }
+        
+        table.appendChild(row);
+    }
+    
+    container.appendChild(table);
+}
+
+// 时间步控制函数
+function previousStep() {
+    if (isAnimating || currentTimeStep <= 0) return;
+    
+    console.log('上一步被点击，当前步骤:', currentTimeStep);
+    isAnimating = true;
+    
+    // 先减少时间步
+    currentTimeStep--;
+    
+    // 更新全局时间步变量
+    updateTimeStep(currentTimeStep);
+    
+    // 在修改缓存前保存当前序列
+    const newSequence = getCurrentSequence();
+    
+    // 重新构建完整缓存，确保与当前序列完全匹配
+    rebuildCache(newSequence);
+    
+    updateVisualization();
+    
+    // 等待动画完成
+    setTimeout(() => {
+        isAnimating = false;
+    }, 600);
+}
+
+// 完全重建缓存数据，确保与指定序列匹配
+function rebuildCache(sequence) {
+    // 如果未提供序列，使用当前序列
+    const seq = sequence || getCurrentSequence();
+    
+    // 清空缓存
+    kCache = [];
+    vCache = [];
+    
+    // 从头开始重建完整缓存
+    for (let i = 0; i < seq.length; i++) {
+        const embedding = embeddingMatrix[seq[i]];
+        const currentK = matrixMultiply([embedding], W_K)[0];
+        const currentV = matrixMultiply([embedding], W_V)[0];
+        
+        kCache.push(currentK);
+        vCache.push(currentV);
+    }
+    
+    console.log('缓存已完全重建，当前序列:', seq, '缓存长度:', kCache.length);
+}
+
+function nextStep() {
+    if (isAnimating || currentTimeStep >= maxTimeSteps - 1) return;
+    
+    console.log('下一步被点击，当前步骤:', currentTimeStep);
+    isAnimating = true;
+    currentTimeStep++;
+    
+    // 更新全局时间步变量
+    updateTimeStep(currentTimeStep);
+    
+    // 获取当前序列
+    const currentSeq = getCurrentSequence();
+    
+    // 如果当前序列长度大于缓存长度，计算并添加新token的K和V
+    if (currentSeq.length > kCache.length) {
+        const newTokenIndex = currentSeq.length - 1;
+        const newToken = currentSeq[newTokenIndex];
+        const embedding = embeddingMatrix[newToken];
+        
+        const newK = matrixMultiply([embedding], W_K)[0];
+        const newV = matrixMultiply([embedding], W_V)[0];
+        
+        kCache.push(newK);
+        vCache.push(newV);
+        
+        console.log('添加新token到缓存:', newToken, '当前缓存长度:', kCache.length);
+    }
+    
+    updateVisualization();
+    
+    // 等待动画完成
+    setTimeout(() => {
+        isAnimating = false;
+    }, 600);
+}
+
+// 导出初始化函数，供组件加载器使用
+export { initializeApp }; 

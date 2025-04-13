@@ -39,6 +39,33 @@
     border-radius: 4px;
 }
 
+/* Q矩阵高度调整，使两边对齐 */
+#qMatrixCache {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 192px; /* 默认最小高度，确保有足够空间 */
+}
+
+/* K矩阵高度调整，使两边对齐 */
+#kMatrixCache {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 192px; /* 默认最小高度，确保有足够空间 */
+}
+
+/* V矩阵高度调整，使两边对齐 */
+#vMatrixCache {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 192px; /* 默认最小高度，确保有足够空间 */
+}
+
 /* 计算节省指示器 */
 .computation-counter {
     font-size: 16px;
@@ -48,6 +75,19 @@
     background-color: #f8f9fa;
     text-align: center;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-height: 60px; /* 添加最小高度确保对齐 */
+    display: flex;
+    flex-direction: row; /* 改为行布局，显示在同一行 */
+    justify-content: center; /* 水平居中内容 */
+    align-items: center; /* 垂直居中 */
+    flex-wrap: wrap; /* 小屏幕自动换行 */
+    gap: 10px; /* 元素间间距 */
+}
+
+/* 节省信息样式 */
+.savings-info {
+    margin-left: 10px;
+    white-space: nowrap;
 }
 
 .computation-saved {

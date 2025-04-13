@@ -290,6 +290,48 @@ function updateVisualization() {
             dim.textContent = `(${currentSeq.length}×4)`;
         }
     });
+    
+    // 动态调整缓存模式所有矩阵的高度，使其与标准模式对齐
+    setTimeout(() => {
+        // Q矩阵高度对齐
+        const qMatrixStandard = document.getElementById('qMatrixStandard');
+        const qMatrixCache = document.getElementById('qMatrixCache');
+        
+        if (qMatrixStandard && qMatrixCache) {
+            // 获取标准Q矩阵的高度
+            const standardHeight = qMatrixStandard.offsetHeight;
+            
+            // 设置缓存Q矩阵的高度
+            if (standardHeight > 0) {
+                qMatrixCache.style.minHeight = `${standardHeight}px`;
+                console.log('已调整Q矩阵高度:', standardHeight);
+            }
+        }
+        
+        // K矩阵高度对齐
+        const kMatrixStandard = document.getElementById('kMatrixStandard');
+        const kMatrixCache = document.getElementById('kMatrixCache');
+        
+        if (kMatrixStandard && kMatrixCache) {
+            const standardHeight = kMatrixStandard.offsetHeight;
+            if (standardHeight > 0) {
+                kMatrixCache.style.minHeight = `${standardHeight}px`;
+                console.log('已调整K矩阵高度:', standardHeight);
+            }
+        }
+        
+        // V矩阵高度对齐
+        const vMatrixStandard = document.getElementById('vMatrixStandard');
+        const vMatrixCache = document.getElementById('vMatrixCache');
+        
+        if (vMatrixStandard && vMatrixCache) {
+            const standardHeight = vMatrixStandard.offsetHeight;
+            if (standardHeight > 0) {
+                vMatrixCache.style.minHeight = `${standardHeight}px`;
+                console.log('已调整V矩阵高度:', standardHeight);
+            }
+        }
+    }, 50); // 短暂延迟确保DOM已经更新
 }
 
 // 更新矩阵显示

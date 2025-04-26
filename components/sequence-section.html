@@ -1,4 +1,17 @@
 <div class="component-section sequence-section">
     <h2 class="section-title">输入序列</h2>
-    <div id="inputSequence" class="sequence-display"></div>
+    <div id="inputSequence" class="sequence-display horizontal-sequence"></div>
+    <style>
+        .horizontal-sequence {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .sequence-display .token {
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
 </div> 

@@ -95,4 +95,114 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- 注意力分数计算对比组件 -->
+<div class="component-section matrix-section">
+    <h2 class="section-title">注意力分数计算对比</h2>
+    
+    <!-- 标准模式(无KV缓存)的注意力计算 -->
+    <h3>标准模式(无KV缓存)</h3>
+    <p class="description">完整计算所有token之间的注意力权重</p>
+    
+    <div class="matrices-grid">
+        <div class="matrix-container">
+            <h3>Q矩阵</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    查询矩阵 <span class="matrix-dimensions">(t×4)</span>
+                </div>
+                <div id="standardQ" class="matrix attention-matrix"></div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>K<sup>T</sup>矩阵</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    键转置 <span class="matrix-dimensions">(4×t)</span>
+                </div>
+                <div id="standardKT" class="matrix attention-matrix"></div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>Q×K<sup>T</sup></h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    注意力分数 <span class="matrix-dimensions">(t×t)</span>
+                </div>
+                <div id="standardAttentionQK" class="matrix attention-matrix"></div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>最终注意力权重</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    缩放+掩码+Softmax <span class="matrix-dimensions">(t×t)</span>
+                </div>
+                <div id="standardSoftmaxQK" class="matrix attention-matrix"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- KV缓存模式的注意力计算 -->
+    <h3>KV缓存模式</h3>
+    <p class="description">只计算最新token的注意力权重，复用已缓存的K值</p>
+    
+    <div class="matrices-grid">
+        <div class="matrix-container">
+            <h3>Q矩阵</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    当前token查询 <span class="matrix-dimensions">(1×4)</span>
+                </div>
+                <div id="cacheQ" class="matrix attention-matrix"></div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>K<sup>T</sup>矩阵</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    缓存的键转置 <span class="matrix-dimensions">(4×t)</span>
+                </div>
+                <div id="cacheKT" class="matrix cached-matrix attention-matrix"></div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>Q×K<sup>T</sup></h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    注意力分数 <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="cacheAttentionQK" class="matrix cached-matrix attention-matrix">
+                    <div class="cached-indicator">仅计算最后一行</div>
+                </div>
+            </div>
+        </div>
+        <div class="matrix-container">
+            <h3>最终注意力权重</h3>
+            <div class="matrix-group">
+                <div class="matrix-label">
+                    缩放+掩码+Softmax <span class="matrix-dimensions">(1×t)</span>
+                </div>
+                <div id="cacheSoftmaxQK" class="matrix cached-matrix attention-matrix">
+                    <div class="cached-indicator">仅计算最后一行</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 计算量对比 -->
+    <div class="computation-comparison">
+        <div class="standard-computation">
+            <h4>标准模式计算量</h4>
+            <div class="computation-value computation-full" id="attentionStandardComputations">t × t 操作</div>
+        </div>
+        <div class="cache-computation">
+            <h4>KV缓存模式计算量</h4>
+            <div class="computation-value computation-saved" id="attentionCacheComputations">t 操作</div>
+            <div class="savings-info">节省: <span id="attentionComputationSaved">(t-1)/t × 100%</span></div>
+        </div>
+    </div>
+    
+    <p class="description">随着序列长度t的增加，KV缓存模式节省的计算量比例接近100%。<br>这是大模型推理加速的关键技术之一。</p>
 </div> 

@@ -229,4 +229,59 @@
     .standard-mode, .cache-mode {
         width: 100%;
     }
+}
+
+/* 注意力分数计算对比样式 */
+.description {
+    text-align: center;
+    color: #666;
+    margin: 10px 0 20px;
+    font-style: italic;
+}
+
+.cached-indicator {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    font-size: 12px;
+    color: #FFA000;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.computation-comparison {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.standard-computation, .cache-computation {
+    flex: 1;
+    max-width: 300px;
+    padding: 10px;
+}
+
+.computation-value {
+    font-size: 18px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .computation-comparison {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .standard-computation, .cache-computation {
+        width: 100%;
+        margin-bottom: 15px;
+    }
 } 

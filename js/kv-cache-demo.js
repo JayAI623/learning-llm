@@ -123,6 +123,9 @@ function standardComputation(sequence) {
     
     return {
         Q, K, V, 
+        QK,            // 添加QK中间结果
+        scaledQK,      // 添加缩放后结果
+        maskedQK,      // 添加掩码后结果
         attentionWeights, 
         output
     };
@@ -134,7 +137,7 @@ function cacheComputation(sequence) {
     cacheComputations = 0;
     
     const currentLength = sequence.length;
-    let Q, K, V, attentionWeights, output;
+    let Q, K, V, QK, scaledQK, maskedQK, attentionWeights, output;
     
     // 确保缓存与序列长度匹配
     if (kCache.length !== currentLength) {
@@ -157,6 +160,9 @@ function cacheComputation(sequence) {
         vCache = [V[0]];
         
         // 注意力计算(对于单token，注意力权重是[1])
+        QK = [[1]];
+        scaledQK = [[1]];
+        maskedQK = [[1]];
         attentionWeights = [[1]];
         output = V;
         
@@ -169,9 +175,9 @@ function cacheComputation(sequence) {
         Q = matrixMultiply([currentEmbedding], W_Q);
         cacheComputations += 1; // Q矩阵乘法
         
-        // 确保使用正确的缓存
-        K = kCache;
-        V = vCache;
+        // 使用完整K和V矩阵(包含缓存+当前)
+        K = kCache.slice(); // 复制缓存中的K矩阵
+        V = vCache.slice(); // 复制缓存中的V矩阵
         
         // 计算注意力分数(仅计算当前token对所有token的注意力)
         // 首先使用现有的K计算QK
@@ -185,17 +191,69 @@ function cacheComputation(sequence) {
         }
         cacheComputations += currentLength; // QK计算
         
+        // 将单行QK结果转换为矩阵格式，方便统一处理
+        QK = [];
+        for (let i = 0; i < currentLength; i++) {
+            if (i < currentLength - 1) {
+                // 为前面已缓存的token创建填充行(不实际计算)
+                const fillerRow = Array(currentLength).fill(0);
+                QK.push(fillerRow);
+            } else {
+                // 只保存当前token的QK计算结果
+                QK.push(qk);
+            }
+        }
+        
         // 缩放
-        const scaledQK = qk.map(x => x / Math.sqrt(embeddingDim));
+        const scaledQk = qk.map(x => x / Math.sqrt(embeddingDim));
         cacheComputations += 1; // 缩放操作
         
+        // 创建缩放后的矩阵表示
+        scaledQK = [];
+        for (let i = 0; i < currentLength; i++) {
+            if (i < currentLength - 1) {
+                // 为前面已缓存的token创建填充行
+                const fillerRow = Array(currentLength).fill(0);
+                scaledQK.push(fillerRow);
+            } else {
+                // 只保存当前token的缩放结果
+                scaledQK.push(scaledQk);
+            }
+        }
+        
         // 应用掩码(当前token只能看到自己及之前的token)
-        const maskedQK = scaledQK.map((x, idx) => idx <= currentLength - 1 ? x : -1e9);
+        const maskedQk = scaledQk.map((x, idx) => idx <= currentLength - 1 ? x : -1e9);
         cacheComputations += 1; // 掩码操作
         
+        // 创建掩码后的矩阵表示
+        maskedQK = [];
+        for (let i = 0; i < currentLength; i++) {
+            if (i < currentLength - 1) {
+                // 为前面已缓存的token创建填充行
+                const fillerRow = Array(currentLength).fill(0);
+                maskedQK.push(fillerRow);
+            } else {
+                // 只保存当前token的掩码结果
+                maskedQK.push(maskedQk);
+            }
+        }
+        
         // 计算softmax
-        const weights = softmax(maskedQK);
+        const weights = softmax(maskedQk);
         cacheComputations += 1; // Softmax操作
+        
+        // 创建注意力权重矩阵
+        attentionWeights = [];
+        for (let i = 0; i < currentLength; i++) {
+            if (i < currentLength - 1) {
+                // 为前面已缓存的token创建填充行
+                const fillerRow = Array(currentLength).fill(0);
+                attentionWeights.push(fillerRow);
+            } else {
+                // 只保存当前token的注意力权重
+                attentionWeights.push(weights);
+            }
+        }
         
         // 计算当前token的输出
         let currentOutput = [];
@@ -208,13 +266,15 @@ function cacheComputation(sequence) {
         }
         cacheComputations += 1; // 加权求和
         
-        // 只保留最新token的注意力权重(简化展示)
-        attentionWeights = [weights];
+        // 更新输出矩阵
         output = [currentOutput];
     }
     
     return {
         Q, K, V, 
+        QK,            // 添加QK中间结果
+        scaledQK,      // 添加缩放后结果
+        maskedQK,      // 添加掩码后结果
         attentionWeights, 
         output
     };
@@ -249,33 +309,32 @@ function updateVisualization() {
     // 计算标准模式
     const standard = standardComputation(currentSeq);
     
-    // 计算缓存模式
-    const cached = cacheComputation(currentSeq);
+    // 计算KV缓存模式
+    const cache = cacheComputation(currentSeq);
     
     // 更新矩阵显示
     updateMatrixDisplay(standard.Q, 'qMatrixStandard');
     updateMatrixDisplay(standard.K, 'kMatrixStandard');
     updateMatrixDisplay(standard.V, 'vMatrixStandard');
     
-    updateMatrixDisplay(cached.Q, 'qMatrixCache');
-    updateMatrixDisplay(cached.K, 'kMatrixCache', true); // 缓存矩阵
-    updateMatrixDisplay(cached.V, 'vMatrixCache', true); // 缓存矩阵
+    updateMatrixDisplay(cache.Q, 'qMatrixCache');
+    updateMatrixDisplay(cache.K, 'kMatrixCache', true);
+    updateMatrixDisplay(cache.V, 'vMatrixCache', true);
     
     // 更新输出矩阵
     updateMatrixDisplay(standard.output, 'outputStandard');
-    updateMatrixDisplay(cached.output, 'outputCache');
+    updateMatrixDisplay(cache.output, 'outputCache');
     
     // 更新计算次数
     document.getElementById('standardComputations').textContent = standardComputations;
     document.getElementById('cacheComputations').textContent = cacheComputations;
     
     // 计算节省百分比
-    if (standardComputations > 0) {
-        const savedPercentage = Math.round((1 - cacheComputations / standardComputations) * 100);
-        document.getElementById('computationSaved').textContent = `${savedPercentage}%`;
-    } else {
-        document.getElementById('computationSaved').textContent = '0%';
-    }
+    const savedPercent = Math.round((standardComputations - cacheComputations) / standardComputations * 100);
+    document.getElementById('computationSaved').textContent = `${savedPercent}%`;
+    
+    // 更新注意力分数计算对比
+    updateAttentionScoreComparison(standard, cache, currentSeq);
     
     // 更新按钮状态 (考虑UI时间步从1开始的逻辑)
     document.getElementById('prevStep').disabled = currentTimeStep === 0;
@@ -476,6 +535,143 @@ function nextStep() {
     setTimeout(() => {
         isAnimating = false;
     }, 600);
+}
+
+// 添加注意力分数计算对比函数
+function updateAttentionScoreComparison(standard, cache, sequence) {
+    const seqLength = sequence.length;
+    
+    // 检查必要的元素是否存在
+    const requiredElements = [
+        'standardQ',
+        'standardKT',
+        'standardAttentionQK',
+        'standardSoftmaxQK',
+        'cacheQ',
+        'cacheKT',
+        'cacheAttentionQK',
+        'cacheSoftmaxQK',
+        'attentionStandardComputations',
+        'attentionCacheComputations',
+        'attentionComputationSaved'
+    ];
+    
+    const missingElements = requiredElements.filter(id => !document.getElementById(id));
+    if (missingElements.length > 0) {
+        console.warn('缺少注意力分数对比所需的DOM元素:', missingElements);
+        return;
+    }
+    
+    // 1. 标准模式 - 显示Q矩阵和K^T矩阵
+    updateAttentionMatrix(standard.Q, 'standardQ');
+    updateAttentionMatrix(transposeMatrix(standard.K), 'standardKT');
+    
+    // 显示Q×K^T矩阵乘积
+    updateAttentionMatrix(standard.QK, 'standardAttentionQK');
+    
+    // 显示最终注意力权重（缩放+掩码+Softmax的结果）
+    updateAttentionMatrix(standard.attentionWeights, 'standardSoftmaxQK');
+    
+    // 2. KV缓存模式 - 显示Q矩阵和K^T矩阵
+    updateAttentionMatrix(cache.Q, 'cacheQ'); 
+    
+    // 转置K缓存矩阵
+    const kCacheTransposed = transposeMatrix(cache.K);
+    updateAttentionMatrix(kCacheTransposed, 'cacheKT', true);
+    
+    // 显示Q×K^T矩阵乘积（最后一行）
+    updateAttentionMatrix([cache.QK[cache.QK.length - 1]], 'cacheAttentionQK', true);
+    
+    // 显示最终注意力权重（最后一行）
+    updateAttentionMatrix([cache.attentionWeights[cache.attentionWeights.length - 1]], 'cacheSoftmaxQK', true);
+    
+    // 3. 计算量对比
+    const standardOps = seqLength * seqLength; // t x t 操作
+    const cacheOps = seqLength; // t 操作
+    const savedPercent = Math.round((standardOps - cacheOps) / standardOps * 100);
+    
+    document.getElementById('attentionStandardComputations').textContent = `${standardOps} 操作 (t×t)`;
+    document.getElementById('attentionCacheComputations').textContent = `${cacheOps} 操作 (t)`;
+    document.getElementById('attentionComputationSaved').textContent = `${savedPercent}% 节省`;
+}
+
+// 更新注意力矩阵显示
+function updateAttentionMatrix(matrix, containerId, isCache = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 获取当前序列
+    const currentSeq = getCurrentSequence();
+    
+    // 查找最大值和最小值用于颜色归一化
+    let maxValue = Number.NEGATIVE_INFINITY;
+    let minValue = Number.POSITIVE_INFINITY;
+    
+    matrix.forEach(row => {
+        row.forEach(val => {
+            if (val !== -Infinity && !isNaN(val)) {
+                maxValue = Math.max(maxValue, val);
+                minValue = Math.min(minValue, val);
+            }
+        });
+    });
+    
+    // 生成矩阵行和单元格
+    matrix.forEach((row, i) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        
+        row.forEach((value, j) => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            // 处理掩码值
+            if (value === -Infinity || value <= -1e9) {
+                cell.classList.add('masked');
+                cell.textContent = '×';
+                cell.title = '已掩码';
+            } else {
+                // 根据值设置背景色深度
+                const normalized = maxValue === minValue ? 0.5 : (value - minValue) / (maxValue - minValue);
+                
+                // 对于softmax结果使用不同的颜色方案
+                if (containerId.includes('Softmax')) {
+                    cell.style.backgroundColor = `rgba(0, 122, 255, ${value})`;
+                } else {
+                    // 使用归一化的值
+                    const intensity = normalized;
+                    const hue = value >= 0 ? 200 : 0; // 正值蓝色，负值红色
+                    cell.style.backgroundColor = `hsla(${hue}, 80%, 50%, ${intensity * 0.5})`;
+                }
+                
+                cell.textContent = value.toFixed(2);
+                
+                // 添加tooltip
+                if (isCache) {
+                    cell.title = `当前token → ${currentSeq[j]}: ${value.toFixed(2)}`;
+                    // 为KV缓存模式添加新值样式
+                    cell.classList.add('new-value');
+                } else {
+                    cell.title = `${currentSeq[i]} → ${currentSeq[j]}: ${value.toFixed(2)}`;
+                }
+            }
+            
+            rowDiv.appendChild(cell);
+        });
+        
+        container.appendChild(rowDiv);
+    });
+    
+    // 对于缓存模式，添加一个指示器
+    if (isCache && container.querySelector('.cached-indicator') === null) {
+        const indicator = document.createElement('div');
+        indicator.className = 'cached-indicator';
+        indicator.textContent = '仅计算最后一行';
+        container.appendChild(indicator);
+    }
 }
 
 // 导出初始化函数，供组件加载器使用

@@ -42,8 +42,6 @@ function initializeApp() {
         'qMatrixCache',
         'kMatrixCache',
         'vMatrixCache',
-        'outputStandard',
-        'outputCache',
         'standardComputations',
         'cacheComputations',
         'computationSaved'
@@ -194,73 +192,55 @@ function cacheComputation(sequence) {
         // 将单行QK结果转换为矩阵格式，方便统一处理
         QK = [];
         for (let i = 0; i < currentLength; i++) {
-            if (i < currentLength - 1) {
-                // 为前面已缓存的token创建填充行(不实际计算)
-                const fillerRow = Array(currentLength).fill(0);
-                QK.push(fillerRow);
+            const row = Array(currentLength).fill(-Infinity); // 初始化为负无穷
+            if (i === currentLength - 1) {
+                // 最后一行使用实际计算的结果
+                for (let j = 0; j < currentLength; j++) {
+                    row[j] = qk[j];
+                }
             } else {
-                // 只保存当前token的QK计算结果
-                QK.push(qk);
+                // 其他行使用之前的计算结果
+                for (let j = 0; j < currentLength; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < K[j].length; k++) {
+                        sum += K[i][k] * K[j][k]; // 使用 K[i] 作为 Q 向量
+                    }
+                    row[j] = sum;
+                }
             }
+            // 对上三角部分填充负无穷
+            for (let j = i + 1; j < currentLength; j++) {
+                row[j] = -Infinity;
+            }
+            QK.push(row);
         }
         
         // 缩放
-        const scaledQk = qk.map(x => x / Math.sqrt(embeddingDim));
-        cacheComputations += 1; // 缩放操作
-        
-        // 创建缩放后的矩阵表示
-        scaledQK = [];
-        for (let i = 0; i < currentLength; i++) {
-            if (i < currentLength - 1) {
-                // 为前面已缓存的token创建填充行
-                const fillerRow = Array(currentLength).fill(0);
-                scaledQK.push(fillerRow);
-            } else {
-                // 只保存当前token的缩放结果
-                scaledQK.push(scaledQk);
-            }
-        }
+        scaledQK = QK.map(row => 
+            row.map(x => x === -Infinity ? -Infinity : x / Math.sqrt(embeddingDim))
+        );
+        cacheComputations += currentLength; // 缩放操作
         
         // 应用掩码(当前token只能看到自己及之前的token)
-        const maskedQk = scaledQk.map((x, idx) => idx <= currentLength - 1 ? x : -1e9);
+        maskedQK = scaledQK; // 我们已经在 QK 计算时应用了掩码
         cacheComputations += 1; // 掩码操作
         
-        // 创建掩码后的矩阵表示
-        maskedQK = [];
-        for (let i = 0; i < currentLength; i++) {
-            if (i < currentLength - 1) {
-                // 为前面已缓存的token创建填充行
-                const fillerRow = Array(currentLength).fill(0);
-                maskedQK.push(fillerRow);
-            } else {
-                // 只保存当前token的掩码结果
-                maskedQK.push(maskedQk);
-            }
-        }
-        
         // 计算softmax
-        const weights = softmax(maskedQk);
-        cacheComputations += 1; // Softmax操作
-        
-        // 创建注意力权重矩阵
-        attentionWeights = [];
-        for (let i = 0; i < currentLength; i++) {
-            if (i < currentLength - 1) {
-                // 为前面已缓存的token创建填充行
-                const fillerRow = Array(currentLength).fill(0);
-                attentionWeights.push(fillerRow);
-            } else {
-                // 只保存当前token的注意力权重
-                attentionWeights.push(weights);
-            }
-        }
+        attentionWeights = maskedQK.map(row => {
+            const validValues = row.filter(x => x !== -Infinity);
+            const maxVal = Math.max(...validValues);
+            const expValues = row.map(x => x === -Infinity ? 0 : Math.exp(x - maxVal));
+            const sumExp = expValues.reduce((a, b) => a + b, 0);
+            return row.map((x, j) => x === -Infinity ? 0 : expValues[j] / sumExp);
+        });
+        cacheComputations += currentLength; // Softmax操作
         
         // 计算当前token的输出
         let currentOutput = [];
         for (let i = 0; i < embeddingDim; i++) {
             let sum = 0;
-            for (let j = 0; j < weights.length; j++) {
-                sum += weights[j] * V[j][i];
+            for (let j = 0; j < attentionWeights[currentLength - 1].length; j++) {
+                sum += attentionWeights[currentLength - 1][j] * V[j][i];
             }
             currentOutput.push(sum);
         }
@@ -320,10 +300,6 @@ function updateVisualization() {
     updateMatrixDisplay(cache.Q, 'qMatrixCache');
     updateMatrixDisplay(cache.K, 'kMatrixCache', true);
     updateMatrixDisplay(cache.V, 'vMatrixCache', true);
-    
-    // 更新输出矩阵
-    updateMatrixDisplay(standard.output, 'outputStandard');
-    updateMatrixDisplay(cache.output, 'outputCache');
     
     // 更新计算次数
     document.getElementById('standardComputations').textContent = standardComputations;
@@ -431,6 +407,20 @@ function updateMatrixDisplay(matrix, containerId, isCache = false) {
                 if (containerId === 'qMatrixCache') {
                     // Q矩阵不需要缓存样式（设置为標准蓝色）
                     // 这里不加具体样式，因为通过HTML的standard-matrix类已添加
+                } else if (containerId === 'kMatrixCache') {
+                    // KT矩阵最后一列为蓝色，其他为橘黄色
+                    if (j === matrix[i].length - 1) {
+                        cell.classList.add('new-value');
+                    } else {
+                        cell.classList.add('cached-value');
+                    }
+                } else if (containerId === 'vMatrixCache') {
+                    // V矩阵最后一行为蓝色，其他行为橘黄色
+                    if (i === matrix.length - 1) {
+                        cell.classList.add('new-value');
+                    } else {
+                        cell.classList.add('cached-value');
+                    }
                 } else {
                     // 最新添加的行标记为"新值"（蓝色）
                     if (i === matrix.length - 1) {
@@ -577,13 +567,14 @@ function updateAttentionScoreComparison(standard, cache, sequence) {
     
     // 转置K缓存矩阵
     const kCacheTransposed = transposeMatrix(cache.K);
+    // 在此处标记最后一列为新值（蓝色），其他列为缓存值（橘黄色）
     updateAttentionMatrix(kCacheTransposed, 'cacheKT', true);
     
-    // 显示Q×K^T矩阵乘积（最后一行）
-    updateAttentionMatrix([cache.QK[cache.QK.length - 1]], 'cacheAttentionQK', true);
+    // 显示Q×K^T矩阵乘积
+    updateAttentionMatrix(cache.QK, 'cacheAttentionQK', true);
     
-    // 显示最终注意力权重（最后一行）
-    updateAttentionMatrix([cache.attentionWeights[cache.attentionWeights.length - 1]], 'cacheSoftmaxQK', true);
+    // 显示最终注意力权重
+    updateAttentionMatrix(cache.attentionWeights, 'cacheSoftmaxQK', true);
     
     // 3. 计算量对比
     const standardOps = seqLength * seqLength; // t x t 操作
@@ -624,6 +615,17 @@ function updateAttentionMatrix(matrix, containerId, isCache = false) {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'matrix-row';
         
+        // 为缓存模式下的注意力权重矩阵添加特殊类
+        if (isCache) {
+            if (containerId === 'cacheSoftmaxQK') {
+                if (i === matrix.length - 1) {
+                    rowDiv.classList.add('current-row');
+                } else {
+                    rowDiv.classList.add('cached-row');
+                }
+            }
+        }
+        
         row.forEach((value, j) => {
             const cell = document.createElement('div');
             cell.className = 'matrix-cell';
@@ -649,11 +651,32 @@ function updateAttentionMatrix(matrix, containerId, isCache = false) {
                 
                 cell.textContent = value.toFixed(2);
                 
-                // 添加tooltip
+                // 添加tooltip和样式
                 if (isCache) {
                     cell.title = `当前token → ${currentSeq[j]}: ${value.toFixed(2)}`;
-                    // 为KV缓存模式添加新值样式
-                    cell.classList.add('new-value');
+                    
+                    // 为KT矩阵的样式设置
+                    if (containerId === 'cacheKT') {
+                        if (j === matrix[i].length - 1) {
+                            cell.classList.add('new-value');
+                        } else {
+                            cell.classList.add('cached-value');
+                        }
+                    }
+                    // 为QKT和Softmax矩阵的样式设置
+                    else if (containerId === 'cacheAttentionQK' || containerId === 'cacheSoftmaxQK') {
+                        if (i === matrix.length - 1) {
+                            cell.classList.add('new-value');
+                            cell.classList.add('current-cell');
+                        } else {
+                            cell.classList.add('cached-value');
+                            cell.classList.add('cached-cell');
+                        }
+                    }
+                    // 其他默认样式
+                    else {
+                        cell.classList.add('new-value');
+                    }
                 } else {
                     cell.title = `${currentSeq[i]} → ${currentSeq[j]}: ${value.toFixed(2)}`;
                 }

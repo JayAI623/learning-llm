@@ -39,6 +39,26 @@
     border-radius: 4px;
 }
 
+/* 缓存行和当前行样式 */
+.current-row {
+    border-left: 3px solid #2196F3;
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+.cached-row {
+    border-left: 3px solid #FFA000;
+    background-color: rgba(255, 152, 0, 0.05);
+}
+
+/* 缓存单元格和当前单元格样式 */
+.current-cell {
+    border: 2px solid rgba(33, 150, 243, 0.6) !important;
+}
+
+.cached-cell {
+    border: 2px solid rgba(255, 152, 0, 0.6) !important;
+}
+
 /* Q矩阵高度调整，使两边对齐 */
 #qMatrixCache {
     display: flex;
@@ -155,21 +175,59 @@
 /* 保持矩阵对齐的样式 */
 .matrices-grid {
     display: grid;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: repeat(4, 1fr);
     gap: 15px;
     width: 100%;
+    margin-bottom: 20px;
+}
+
+/* 垂直排列矩阵样式 */
+.matrices-grid-vertical {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* 在小屏幕上改为2列 */
+@media (max-width: 1200px) {
+    .matrices-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 在更小的屏幕上改为1列 */
+@media (max-width: 768px) {
+    .matrices-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .matrix-container {
     min-height: 200px;
     display: flex;
     flex-direction: column;
+    margin-bottom: 15px;
 }
 
+/* 垂直排列时的矩阵容器样式 */
+.matrices-grid-vertical .matrix-container {
+    min-height: 150px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 20px;
+}
+
+.matrices-grid-vertical .matrix-container:last-child {
+    border-bottom: none;
+}
+
+/* 调整矩阵组的高度，确保一致性 */
 .matrix-group {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .matrix {
@@ -177,6 +235,24 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+/* 垂直排列时标题和标签样式 */
+.matrices-grid-vertical h3 {
+    border-left: 4px solid var(--primary-color, #3498db);
+    padding-left: 10px;
+    margin-bottom: 15px;
+}
+
+.matrices-grid-vertical .matrix-label {
+    padding-left: 14px;
+    margin-bottom: 12px;
+}
+
+.matrices-grid-vertical .matrix {
+    align-self: center;
+    width: 90%;
+    max-width: 600px;
 }
 
 /* 对比区域 */
@@ -220,17 +296,6 @@
     transform: scale(1.05);
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .comparison-container {
-        flex-direction: column;
-    }
-    
-    .standard-mode, .cache-mode {
-        width: 100%;
-    }
-}
-
 /* 注意力分数计算对比样式 */
 .description {
     text-align: center;
@@ -248,7 +313,7 @@
     background-color: rgba(255, 255, 255, 0.8);
     padding: 2px 6px;
     border-radius: 4px;
-    z-index: 1;
+    z-index: 10;
 }
 
 .computation-comparison {
@@ -273,7 +338,18 @@
     font-weight: bold;
 }
 
-/* 响应式调整 */
+/* 响应式调整 - 对比区域 */
+@media (max-width: 768px) {
+    .comparison-container {
+        flex-direction: column;
+    }
+    
+    .standard-mode, .cache-mode {
+        width: 100%;
+    }
+}
+
+/* 响应式调整 - 计算对比区域 */
 @media (max-width: 768px) {
     .computation-comparison {
         flex-direction: column;
@@ -284,4 +360,91 @@
         width: 100%;
         margin-bottom: 15px;
     }
+}
+
+/* 矩阵解释说明 */
+.matrix-explainer {
+    position: absolute;
+    top: -10px;
+    right: 0;
+    font-size: 12px;
+    color: #FFA000;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+/* 显示完整历史的矩阵 */
+.full-history-matrix {
+    position: relative;
+}
+
+.full-history-matrix .matrix-row {
+    display: flex;
+    margin-bottom: 4px;
+}
+
+.full-history-matrix .matrix-row.cached-row .matrix-cell {
+    background-color: rgba(255, 152, 0, 0.2);
+}
+
+.full-history-matrix .matrix-row.current-row .matrix-cell {
+    background-color: rgba(33, 150, 243, 0.2);
+    font-weight: bold;
+    animation: pulse-blue 1.5s infinite;
+}
+
+/* 上三角区域填充的0值样式 */
+.padded-zero {
+    color: #999;
+    background-color: #f5f5f5 !important;
+    font-style: italic;
+}
+
+/* 矩阵单元格样式 */
+.full-history-matrix .cached-cell {
+    background-color: rgba(255, 152, 0, 0.2) !important;
+    color: #333 !important;
+    border-color: rgba(255, 152, 0, 0.4) !important;
+}
+
+.full-history-matrix .current-cell {
+    background-color: rgba(33, 150, 243, 0.2) !important;
+    font-weight: bold !important;
+    color: #000 !important;
+    animation: pulse-blue 1.5s infinite;
+}
+
+/* 固定蓝色单元格样式 */
+.fixed-blue-cell {
+    background-color: rgba(33, 150, 243, 0.2) !important;
+    color: #000 !important;
+    border-color: rgba(33, 150, 243, 0.4) !important;
+}
+
+/* 垂直排列模式下增强视觉分隔 */
+.matrices-grid-vertical + h3,
+.matrices-grid-vertical + p {
+    margin-top: 30px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 20px;
+}
+
+.matrices-grid-vertical .matrix-explainer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 计算对比部分在垂直模式下的调整 */
+.matrices-grid-vertical + .computation-comparison {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(245, 245, 245, 0.5);
+    border-radius: 8px;
+}
+
+.matrices-grid-vertical + .computation-comparison h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
 } 

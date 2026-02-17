@@ -22,7 +22,7 @@
                 计算量: <span id="standardComputations" class="computation-full">0</span> 操作
             </div>
             
-            <div class="matrices-grid">
+            <div class="matrices-grid matrices-grid-vertical">
                 <div class="matrix-container">
                     <h3>Q矩阵</h3>
                     <div class="matrix-group">
@@ -62,7 +62,7 @@
                 计算量: <span id="cacheComputations" class="computation-saved">0</span> 操作 <span class="savings-info">节省: <span id="computationSaved">0%</span></span>
             </div>
             
-            <div class="matrices-grid">
+            <div class="matrices-grid matrices-grid-vertical">
                 <div class="matrix-container">
                     <h3>Q矩阵</h3>
                     <div class="matrix-group">
@@ -150,7 +150,7 @@
     
     <div class="matrices-grid">
         <div class="matrix-container">
-            <h3>Q矩阵</h3>
+            <h3>q向量</h3>
             <div class="matrix-group">
                 <div class="matrix-label">
                     当前token查询 <span class="matrix-dimensions">(1×4)</span>
@@ -171,10 +171,10 @@
             <h3>Q×K<sup>T</sup></h3>
             <div class="matrix-group">
                 <div class="matrix-label">
-                    注意力分数 <span class="matrix-dimensions">(1×t)</span>
+                    注意力分数 <span class="matrix-dimensions">(t×t)</span>
                 </div>
-                <div id="cacheAttentionQK" class="matrix cached-matrix attention-matrix">
-                    <div class="cached-indicator">仅计算最后一行</div>
+                <div id="cacheAttentionQK" class="matrix cached-matrix attention-matrix full-history-matrix">
+                    <div class="matrix-explainer">橘黄色表示缓存的计算结果</div>
                 </div>
             </div>
         </div>
@@ -182,10 +182,10 @@
             <h3>最终注意力权重</h3>
             <div class="matrix-group">
                 <div class="matrix-label">
-                    缩放+掩码+Softmax <span class="matrix-dimensions">(1×t)</span>
+                    缩放+掩码+Softmax <span class="matrix-dimensions">(t×t)</span>
                 </div>
-                <div id="cacheSoftmaxQK" class="matrix cached-matrix attention-matrix">
-                    <div class="cached-indicator">仅计算最后一行</div>
+                <div id="cacheSoftmaxQK" class="matrix cached-matrix attention-matrix full-history-matrix">
+                    <div class="matrix-explainer">橘黄色表示缓存的计算结果</div>
                 </div>
             </div>
         </div>
